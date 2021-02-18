@@ -9,9 +9,9 @@ fn main() {
     let incl_dir = if let Ok(path) = env::var("CYCLONE_INCLUDE") {
     	format!("-I{}", path)
     } else { "-I/usr/local/include".into() };
-    let lib_dir = if let Ok(path) = env::var("CYCLONE_INCLUDE") {
+    let lib_dir = if let Ok(path) = env::var("CYCLONE_LIB") {
     	format!("-L{}", path)
-    } else { "-L/usr/local/include".into() };
+    } else { "-L/usr/local/lib".into() };
     let bindings = bindgen::Builder::default()
         .header("wrapper.h")
 	.clang_arg(incl_dir)
