@@ -1,0 +1,6 @@
+[submodule "cyclonedds"]
+	path = cyclonedds
+	url = https://github.com/eclipse-cyclonedds/cyclonedds.git
+[submodule "cyclocut"]
+	path = cyclocut
+	url = https://github.com/kydos/cyclocut.git
