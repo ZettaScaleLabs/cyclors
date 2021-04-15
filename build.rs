@@ -13,8 +13,9 @@ fn main() {
     let cyclonedds_dir = out_dir.join("cyclonedds-build");
     dir_builder.create(&cyclonedds_dir).unwrap();
     let cyclonedds = cmake::Config::new("cyclonedds")
-        .define("BUILD_SHARED_LIBS", "false")
-        .define("BUILD_IDLC", "off")
+        .define("BUILD_SHARED_LIBS", "OFF")
+        .define("BUILD_IDLC", "NO")
+        .define("ENABLE_SSL", "NO")
         .out_dir(cyclonedds_dir)
         .build();
     let cyclonedds_include = cyclonedds.join("include");
@@ -35,8 +36,8 @@ fn main() {
         .env("CYCLONE_LIB", &cyclonedds_lib)
         .define("CYCLONE_INCLUDE", cyclonedds_include.clone())
         .define("CYCLONE_LIB", cyclonedds_lib.clone())
-        .define("BUILD_CDDS_UTIL_EXAMPLES", "off")
-        .define("BUILD_SHARED_LIBS", "false")
+        .define("BUILD_CDDS_UTIL_EXAMPLES", "OFF")
+        .define("BUILD_SHARED_LIBS", "OFF")
         .out_dir(cyclocut_dir)
         .build();
     let cyclocut_include = cyclocut.join("include");
