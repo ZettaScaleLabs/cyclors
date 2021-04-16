@@ -16,6 +16,7 @@ fn main() {
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_IDLC", "NO")
         .define("ENABLE_SSL", "NO")
+        .define("CMAKE_INSTALL_LIBDIR", "lib")
         .out_dir(cyclonedds_dir)
         .build();
     let cyclonedds_include = cyclonedds.join("include");
@@ -38,6 +39,7 @@ fn main() {
         .define("CYCLONE_LIB", cyclonedds_lib.clone())
         .define("BUILD_CDDS_UTIL_EXAMPLES", "OFF")
         .define("BUILD_SHARED_LIBS", "OFF")
+        .define("CMAKE_INSTALL_LIBDIR", "lib")
         .out_dir(cyclocut_dir)
         .build();
     let cyclocut_include = cyclocut.join("include");
