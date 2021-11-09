@@ -14,7 +14,8 @@ fn main() {
     dir_builder.create(&cyclonedds_dir).unwrap();
     let cyclonedds = cmake::Config::new("cyclonedds")
         .define("BUILD_SHARED_LIBS", "OFF")
-        .define("BUILD_IDLC", "NO")
+        .define("BUILD_IDLC", "OFF")
+        .define("BUILD_SCHEMA", "OFF")
         .define("ENABLE_SSL", "NO")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
         .out_dir(cyclonedds_dir)
