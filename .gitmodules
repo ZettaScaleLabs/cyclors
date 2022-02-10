@@ -1,6 +1,7 @@
 [submodule "cyclonedds"]
 	path = cyclonedds
-	url = https://github.com/eclipse-cyclonedds/cyclonedds.git
+	url = https://github.com/JEnoch/cyclonedds.git
+	branch = fix_thread_is_asleep
 [submodule "cyclocut"]
 	path = cyclocut
 	url = https://github.com/kydos/cyclocut.git
