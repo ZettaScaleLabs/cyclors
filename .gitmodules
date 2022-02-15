@@ -1,6 +1,7 @@
 [submodule "cyclonedds"]
 	path = cyclonedds
 	url = https://github.com/eclipse-cyclonedds/cyclonedds.git
+	branch = releases/0.7.x
 [submodule "cyclocut"]
 	path = cyclocut
 	url = https://github.com/kydos/cyclocut.git
