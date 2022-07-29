@@ -20,5 +20,5 @@ name = "cyclors"
 libc = "0.2.67"
 
 [build-dependencies]
-bindgen = "0.58.1"
+bindgen = "0.60"
 cmake = "0.1"
