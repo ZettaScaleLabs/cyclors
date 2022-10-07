@@ -157,7 +157,7 @@ fn main() {
         let ptx = Box::new((true, tx.clone()));
         let stx = Box::new((false, tx));
         let dp = dds_create_participant(DDS_DOMAIN_DEFAULT, std::ptr::null(), std::ptr::null());
-        let _ = cdds_create_blob_sertopic(dp, CString::new("Foo").unwrap().into_raw(), CString::new("Bar").unwrap().into_raw(), true);
+        let _ = cdds_create_blob_sertype(dp, CString::new("Bar").unwrap().into_raw(), true);
         let pub_listener = dds_create_listener(Box::into_raw(ptx) as *mut std::os::raw::c_void);
         dds_lset_data_available(pub_listener, Some(on_data));
 
