@@ -16,6 +16,7 @@ fn main() {
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_IDLC", "OFF")
         .define("BUILD_DDSPERF", "OFF")
+        .define("ENABLE_LTO", "NO")
         .define("ENABLE_SSL", "NO")
         .define("ENABLE_SECURITY", "NO")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
