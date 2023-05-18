@@ -41,7 +41,6 @@ fn main() {
         .env("CYCLONE_LIB", &cyclonedds_lib)
         .define("CYCLONE_INCLUDE", cyclonedds_include.clone())
         .define("CYCLONE_LIB", cyclonedds_lib.clone())
-        .define("BUILD_CDDS_UTIL_EXAMPLES", "OFF")
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
         .out_dir(cyclocut_dir)

@@ -21,7 +21,37 @@ pub const DDS_BUILTIN_TOPIC_DCPSSUBSCRIPTION    : dds_entity_t = (DDS_MIN_PSEUDO
 /** Special handle representing the entity corresponding to the CycloneDDS library itself */
 pub const DDS_CYCLONEDDS_HANDLE                 : dds_entity_t = (DDS_MIN_PSEUDO_HANDLE + 256) as dds_entity_t;
 
-pub const DDS_DOMAIN_DEFAULT                : u32 = 0xffffffff as u32;
+pub const DDS_DOMAIN_DEFAULT                    : u32 = 0xffffffff as u32;
+
+pub mod qos;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
+/* Additional wrapper functions for select exported inline functions */
+
+extern "C" {
+    pub fn ddsi_serdata_size(d: *const ddsi_serdata) -> u32;
+}
+extern "C" {
+    pub fn ddsi_serdata_to_ser_ref(
+        d: *const ddsi_serdata,
+        off: size_t,
+        sz: size_t,
+        ref_: *mut ddsrt_iovec_t,
+    ) -> *mut ddsi_serdata;
+}
+extern "C" {
+    pub fn ddsi_serdata_unref(serdata: *mut ddsi_serdata);
+}
+extern "C" {
+    pub fn ddsi_serdata_to_ser_unref(d: *mut ddsi_serdata, ref_: *const ddsrt_iovec_t);
+}
+extern "C" {
+    pub fn ddsi_serdata_from_ser_iov(
+        type_: *const ddsi_sertype,
+        kind: ddsi_serdata_kind,
+        niov: ddsrt_msg_iovlen_t,
+        iov: *const ddsrt_iovec_t,
+        size: size_t,
+    ) -> *mut ddsi_serdata;
+}

@@ -1,6 +1,6 @@
 use std::mem::MaybeUninit;
 use cyclors::*;
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
 
@@ -157,7 +157,6 @@ fn main() {
         let ptx = Box::new((true, tx.clone()));
         let stx = Box::new((false, tx));
         let dp = dds_create_participant(DDS_DOMAIN_DEFAULT, std::ptr::null(), std::ptr::null());
-        let _ = cdds_create_blob_sertype(dp, CString::new("Bar").unwrap().into_raw(), true);
         let pub_listener = dds_create_listener(Box::into_raw(ptx) as *mut std::os::raw::c_void);
         dds_lset_data_available(pub_listener, Some(on_data));
 
