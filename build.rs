@@ -9,6 +9,34 @@ fn main() {
     let mut dir_builder = std::fs::DirBuilder::new();
     dir_builder.recursive(true);
 
+    // Build iceoryx
+    let iceoryx_dir = out_dir.join("iceoryx-build");
+    dir_builder.create(&iceoryx_dir).unwrap();
+    let iceoryx = cmake::Config::new("iceoryx/iceoryx_meta")
+        .define("BUILD_SHARED_LIBS", "OFF")
+        .out_dir(iceoryx_dir)
+        .build();
+
+    let iceoryx_lib = iceoryx.join("lib");
+
+    // Add iceoryx lib to link
+    println!("cargo:rustc-link-search=native={}", iceoryx_lib.display());
+    println!("cargo:rustc-link-lib=static=iceoryx_binding_c");
+    println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
+    println!("cargo:rustc-link-lib=static=iceoryx_posh");
+    println!("cargo:rustc-link-lib=static=iceoryx_platform");
+
+    #[cfg(target_os = "linux")]
+    println!("cargo:rustc-link-lib=acl");
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    println!("cargo:rustc-link-lib=stdc++");
+
+    #[cfg(any(target_os = "macos"))]
+    println!("cargo:rustc-link-lib=c++");
+
+    let iceoryx_install_path = iceoryx.as_os_str();
+
     // Build cyclonedds
     let cyclonedds_dir = out_dir.join("cyclonedds-build");
     dir_builder.create(&cyclonedds_dir).unwrap();
@@ -17,10 +45,13 @@ fn main() {
         .define("BUILD_IDLC", "OFF")
         .define("BUILD_DDSPERF", "OFF")
         .define("ENABLE_LTO", "NO")
-        .define("ENABLE_SHM", "NO")  // Disable SHM as not tested and requires Iceoryx to be statically linked
+        .define("ENABLE_SHM", "ON")
         .define("ENABLE_SSL", "NO")
         .define("ENABLE_SECURITY", "NO")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
+        .env("iceoryx_binding_c_DIR", iceoryx_install_path)
+        .env("iceoryx_hoofs_DIR", iceoryx_install_path)
+        .env("iceoryx_posh_DIR", iceoryx_install_path)
         .out_dir(cyclonedds_dir)
         .build();
     let cyclonedds_include = cyclonedds.join("include");
