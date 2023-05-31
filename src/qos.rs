@@ -540,7 +540,7 @@ fn vec_into_raw_parts<T>(v: Vec<T>) -> (*mut T, usize, usize) {
 #[test]
 fn test_qos_serialization() {
     let native = unsafe { dds_create_qos() };
-    let qos = Qos::from_writer_qos_native(native);
+    let qos = unsafe { Qos::from_writer_qos_native(native) };
     let json = serde_json::to_string(&qos).unwrap();
 
     println!("{json}");
@@ -555,18 +555,20 @@ fn test_qos_serialization() {
 
 #[test]
 fn test_to_native() {
-    let native = unsafe { dds_create_qos() };
-    let mut qos = Qos::from_writer_qos_native(native);
+    unsafe {
+        let native = dds_create_qos();
+        let mut qos = Qos::from_writer_qos_native(native);
 
-    let native2 = qos.to_qos_native();
-    let qos2 = Qos::from_writer_qos_native(native2);
-    assert!(qos == qos2);
+        let native2 = qos.to_qos_native();
+        let qos2 = Qos::from_writer_qos_native(native2);
+        assert!(qos == qos2);
 
-    qos.partitions.push("P1".to_string());
-    qos.partitions.push("P2".to_string());
+        qos.partitions.push("P1".to_string());
+        qos.partitions.push("P2".to_string());
 
-    let native3 = qos.to_qos_native();
-    let qos3 = Qos::from_writer_qos_native(native3);
-    assert!(qos3.partitions.len() == 2);
-    assert!(qos == qos3);
+        let native3 = qos.to_qos_native();
+        let qos3 = Qos::from_writer_qos_native(native3);
+        assert!(qos3.partitions.len() == 2);
+        assert!(qos == qos3);
+    }
 }

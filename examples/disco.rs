@@ -36,7 +36,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
     let btx = Box::from_raw(arg as *mut (bool, Sender<MatchedEntity>));
 
     #[allow(clippy::uninit_assumed_init)]
-    let mut si: [dds_sample_info_t; MAX_SAMPLES] = { MaybeUninit::uninit().assume_init() };
+    let mut si = MaybeUninit::<[dds_sample_info_t; MAX_SAMPLES as usize]>::uninit();
     let mut samples: [*mut ::std::os::raw::c_void; MAX_SAMPLES] =
         [std::ptr::null_mut(); MAX_SAMPLES as usize];
     samples[0] = std::ptr::null_mut();
@@ -48,6 +48,8 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
         MAX_SAMPLES as u64,
         MAX_SAMPLES as u32,
     );
+    let si = si.assume_init();
+
     for i in 0..n {
         if si[i as usize].valid_data {
             let sample = samples[i as usize] as *mut dds_builtintopic_endpoint_t;
