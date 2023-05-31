@@ -1,6 +1,5 @@
 extern crate bindgen;
 
-use cmake;
 use std::env;
 use std::path::PathBuf;
 
@@ -17,7 +16,7 @@ fn main() {
         .define("BUILD_IDLC", "OFF")
         .define("BUILD_DDSPERF", "OFF")
         .define("ENABLE_LTO", "NO")
-        .define("ENABLE_SHM", "NO")  // Disable SHM as not tested and requires Iceoryx to be statically linked
+        .define("ENABLE_SHM", "NO") // Disable SHM as not tested and requires Iceoryx to be statically linked
         .define("ENABLE_SSL", "NO")
         .define("ENABLE_SECURITY", "NO")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
@@ -41,7 +40,6 @@ fn main() {
         .env("CYCLONE_LIB", &cyclonedds_lib)
         .define("CYCLONE_INCLUDE", cyclonedds_include.clone())
         .define("CYCLONE_LIB", cyclonedds_lib.clone())
-        .define("BUILD_CDDS_UTIL_EXAMPLES", "OFF")
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
         .out_dir(cyclocut_dir)
