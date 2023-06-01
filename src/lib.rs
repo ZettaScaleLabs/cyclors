@@ -35,8 +35,8 @@ extern "C" {
 extern "C" {
     pub fn ddsi_serdata_to_ser_ref(
         d: *const ddsi_serdata,
-        off: size_t,
-        sz: size_t,
+        off: usize,
+        sz: usize,
         ref_: *mut ddsrt_iovec_t,
     ) -> *mut ddsi_serdata;
 }
@@ -52,6 +52,6 @@ extern "C" {
         kind: ddsi_serdata_kind,
         niov: ddsrt_msg_iovlen_t,
         iov: *const ddsrt_iovec_t,
-        size: size_t,
+        size: usize,
     ) -> *mut ddsi_serdata;
 }

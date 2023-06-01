@@ -76,6 +76,7 @@ fn main() {
         .define("CMAKE_INSTALL_LIBDIR", "lib")
         .out_dir(cyclocut_dir)
         .build();
+
     let cyclocut_include = cyclocut.join("include");
     let cyclocut_lib = cyclocut.join("lib");
 
@@ -88,9 +89,14 @@ fn main() {
         .header("wrapper.h")
         .clang_arg(format!("-I{}", cyclonedds_include.to_str().unwrap()))
         .clang_arg(format!("-I{}", cyclocut_include.to_str().unwrap()))
-        .generate_comments(false)
-        .generate()
-        .expect("Unable to generate bindings");
+        .generate_comments(false);
+
+    #[cfg(target_os = "windows")]
+    let bindings = bindings
+        .clang_arg("-Wno-invalid-token-paste")
+        .blocklist_item("^(.*IMAGE_TLS_DIRECTORY.*)$");
+
+    let bindings = bindings.generate().expect("Unable to generate bindings");
 
     bindings
         .write_to_file(out_dir.join("bindings.rs"))
