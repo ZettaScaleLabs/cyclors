@@ -90,10 +90,12 @@ fn main() {
         .clang_arg(format!("-I{}", cyclocut_include.to_str().unwrap()))
         .generate_comments(false);
 
+    // Add *IMAGE_TLS_DIRECTORY* to blocklist on Windows due to
+    // https://github.com/rust-lang/rust-bindgen/issues/2179
     #[cfg(target_os = "windows")]
     let bindings = bindings
         .clang_arg("-Wno-invalid-token-paste")
-        .blocklist_item("^(.*IMAGE_TLS_DIRECTORY.*)$");
+        .blocklist_type("^(.*IMAGE_TLS_DIRECTORY.*)$");
 
     let bindings = bindings.generate().expect("Unable to generate bindings");
 
