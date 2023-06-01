@@ -18,6 +18,8 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+    - name: Install ACL
+      run: sudo apt-get -y install acl-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
