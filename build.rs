@@ -1,6 +1,5 @@
 extern crate bindgen;
 
-use cmake;
 use std::env;
 use std::path::PathBuf;
 
@@ -45,7 +44,7 @@ fn main() {
         .define("BUILD_IDLC", "OFF")
         .define("BUILD_DDSPERF", "OFF")
         .define("ENABLE_LTO", "NO")
-        .define("ENABLE_SHM", "ON")
+        .define("ENABLE_SHM", "YES")
         .define("ENABLE_SSL", "NO")
         .define("ENABLE_SECURITY", "NO")
         .define("CMAKE_INSTALL_LIBDIR", "lib")

@@ -1,6 +1,6 @@
-use std::mem::MaybeUninit;
 use cyclors::*;
 use std::ffi::CStr;
+use std::mem::MaybeUninit;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
 
@@ -12,7 +12,7 @@ pub enum MatchedEntity {
         topic_name: String,
         type_name: String,
         partition: Option<String>,
-        qos: Arc<*mut dds_qos_t>
+        qos: Arc<*mut dds_qos_t>,
     },
     UndiscoveredPublication {
         topic_name: String,
@@ -23,7 +23,7 @@ pub enum MatchedEntity {
         topic_name: String,
         type_name: String,
         partition: Option<String>,
-        qos: Arc<*mut dds_qos_t>
+        qos: Arc<*mut dds_qos_t>,
     },
     UndiscoveredSubscription {
         topic_name: String,
@@ -36,7 +36,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
     let btx = Box::from_raw(arg as *mut (bool, Sender<MatchedEntity>));
 
     #[allow(clippy::uninit_assumed_init)]
-    let mut si: [dds_sample_info_t; MAX_SAMPLES] = { MaybeUninit::uninit().assume_init() };
+    let mut si = MaybeUninit::<[dds_sample_info_t; MAX_SAMPLES as usize]>::uninit();
     let mut samples: [*mut ::std::os::raw::c_void; MAX_SAMPLES] =
         [std::ptr::null_mut(); MAX_SAMPLES as usize];
     samples[0] = std::ptr::null_mut();
@@ -48,6 +48,8 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
         MAX_SAMPLES as u64,
         MAX_SAMPLES as u32,
     );
+    let si = si.assume_init();
+
     for i in 0..n {
         if si[i as usize].valid_data {
             let sample = samples[i as usize] as *mut dds_builtintopic_endpoint_t;
@@ -74,7 +76,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
                                     topic_name: String::from(topic_name),
                                     type_name: String::from(type_name),
                                     partition: Some(String::from(p)),
-                                    qos: bqos.clone()
+                                    qos: bqos.clone(),
                                 })
                                 .unwrap();
                         } else {
@@ -83,7 +85,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
                                     topic_name: String::from(topic_name),
                                     type_name: String::from(type_name),
                                     partition: Some(String::from(p)),
-                                    qos: bqos.clone()
+                                    qos: bqos.clone(),
                                 })
                                 .unwrap();
                         }
@@ -112,7 +114,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
                             topic_name: String::from(topic_name),
                             type_name: String::from(type_name),
                             partition: None,
-                            qos: bqos.clone()
+                            qos: bqos.clone(),
                         })
                         .unwrap();
                 } else {
@@ -121,7 +123,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
                             topic_name: String::from(topic_name),
                             type_name: String::from(type_name),
                             partition: None,
-                            qos: bqos.clone()
+                            qos: bqos.clone(),
                         })
                         .unwrap();
                 }

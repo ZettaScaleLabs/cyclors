@@ -1,9 +1,3 @@
-use std::{
-    ffi::{CStr, CString},
-    os::raw::c_char,
-};
-use std::mem::ManuallyDrop;
-
 //
 // Copyright (c) 2022 ZettaScale Technology
 //
@@ -20,6 +14,11 @@ use std::mem::ManuallyDrop;
 use crate::*;
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
+use std::mem::ManuallyDrop;
+use std::{
+    ffi::{CStr, CString},
+    os::raw::c_char,
+};
 
 pub const DDS_INFINITE_TIME: i64 = 0x7FFFFFFFFFFFFFFF;
 pub const DDS_100MS_DURATION: i64 = 100 * 1_000_000;
@@ -43,7 +42,10 @@ pub struct Qos {
 }
 
 impl Qos {
-    fn from_qos_native_with_reliability(qos: *mut dds_qos_t, reliability: Reliability) -> Self {
+    unsafe fn from_qos_native_with_reliability(
+        qos: *mut dds_qos_t,
+        reliability: Reliability,
+    ) -> Self {
         unsafe {
             // durability
             let mut dur_kind: dds_durability_kind_t = dds_durability_kind_DDS_DURABILITY_VOLATILE;
@@ -201,7 +203,7 @@ impl Qos {
         }
     }
 
-    pub fn from_writer_qos_native(qos: *mut dds_qos_t) -> Self {
+    pub unsafe fn from_writer_qos_native(qos: *mut dds_qos_t) -> Self {
         unsafe {
             // try to get reliability, defaulting to RELIABLE for a Writer
             let mut rel_kind: dds_reliability_kind_t = 0;
@@ -222,7 +224,7 @@ impl Qos {
         }
     }
 
-    pub fn from_reader_qos_native(qos: *mut dds_qos_t) -> Self {
+    pub unsafe fn from_reader_qos_native(qos: *mut dds_qos_t) -> Self {
         unsafe {
             // try to get reliability, defaulting to BEST_EFFORT for a Reader
             let mut rel_kind: dds_reliability_kind_t = 0;
@@ -243,7 +245,7 @@ impl Qos {
         }
     }
 
-    pub fn to_qos_native(&self) -> *mut dds_qos_t {
+    pub unsafe fn to_qos_native(&self) -> *mut dds_qos_t {
         unsafe {
             let qos = dds_create_qos();
 
@@ -314,7 +316,7 @@ impl Qos {
         }
     }
 
-    pub fn delete_qos_native(qos: *mut dds_qos_t) {
+    pub unsafe fn delete_qos_native(qos: *mut dds_qos_t) {
         unsafe {
             dds_delete_qos(qos);
         }
@@ -538,7 +540,7 @@ fn vec_into_raw_parts<T>(v: Vec<T>) -> (*mut T, usize, usize) {
 #[test]
 fn test_qos_serialization() {
     let native = unsafe { dds_create_qos() };
-    let qos = Qos::from_writer_qos_native(native);
+    let qos = unsafe { Qos::from_writer_qos_native(native) };
     let json = serde_json::to_string(&qos).unwrap();
 
     println!("{json}");
@@ -553,18 +555,20 @@ fn test_qos_serialization() {
 
 #[test]
 fn test_to_native() {
-    let native = unsafe { dds_create_qos() };
-    let mut qos = Qos::from_writer_qos_native(native);
+    unsafe {
+        let native = dds_create_qos();
+        let mut qos = Qos::from_writer_qos_native(native);
 
-    let native2 = qos.to_qos_native();
-    let qos2 = Qos::from_writer_qos_native(native2);
-    assert!(qos == qos2);
+        let native2 = qos.to_qos_native();
+        let qos2 = Qos::from_writer_qos_native(native2);
+        assert!(qos == qos2);
 
-    qos.partitions.push("P1".to_string());
-    qos.partitions.push("P2".to_string());
+        qos.partitions.push("P1".to_string());
+        qos.partitions.push("P2".to_string());
 
-    let native3 = qos.to_qos_native();
-    let qos3 = Qos::from_writer_qos_native(native3);
-    assert!(qos3.partitions.len() == 2);
-    assert!(qos == qos3);
+        let native3 = qos.to_qos_native();
+        let qos3 = Qos::from_writer_qos_native(native3);
+        assert!(qos3.partitions.len() == 2);
+        assert!(qos == qos3);
+    }
 }
