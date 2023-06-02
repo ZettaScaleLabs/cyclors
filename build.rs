@@ -11,7 +11,14 @@ fn main() {
     // Build iceoryx
     let iceoryx_dir = out_dir.join("iceoryx-build");
     dir_builder.create(&iceoryx_dir).unwrap();
-    let iceoryx = cmake::Config::new("iceoryx/iceoryx_meta")
+    let mut iceoryx = cmake::Config::new("iceoryx/iceoryx_meta");
+
+    // Force compilation of Iceoryx in release mode on Windows due to
+    // https://github.com/rust-lang/rust/issues/39016
+    #[cfg(all(debug_assertions, target_os = "windows"))]
+    let iceoryx = iceoryx.profile("Release");
+
+    let iceoryx = iceoryx
         .define("BUILD_SHARED_LIBS", "OFF")
         .out_dir(iceoryx_dir)
         .build();
@@ -39,7 +46,14 @@ fn main() {
     // Build cyclonedds
     let cyclonedds_dir = out_dir.join("cyclonedds-build");
     dir_builder.create(&cyclonedds_dir).unwrap();
-    let cyclonedds = cmake::Config::new("cyclonedds")
+    let mut cyclonedds = cmake::Config::new("cyclonedds");
+
+    // Force compilation of Cyclone DDS in release mode on Windows due to
+    // https://github.com/rust-lang/rust/issues/39016
+    #[cfg(all(debug_assertions, target_os = "windows"))]
+    let cyclonedds = cyclonedds.profile("Release");
+
+    let cyclonedds = cyclonedds
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_IDLC", "OFF")
         .define("BUILD_DDSPERF", "OFF")
@@ -53,6 +67,7 @@ fn main() {
         .env("iceoryx_posh_DIR", iceoryx_install_path)
         .out_dir(cyclonedds_dir)
         .build();
+
     let cyclonedds_include = cyclonedds.join("include");
     let cyclonedds_lib = cyclonedds.join("lib");
 
@@ -63,10 +78,22 @@ fn main() {
     );
     println!("cargo:rustc-link-lib=static=ddsc");
 
+    // Add Windows libraries required by Cyclone to link
+    #[cfg(target_os = "windows")]
+    println!("cargo:rustc-link-lib=Iphlpapi");
+    println!("cargo:rustc-link-lib=DbgHelp");
+
     // Build cyclocut
     let cyclocut_dir = out_dir.join("cyclocut-build");
     dir_builder.create(&cyclocut_dir).unwrap();
-    let cyclocut = cmake::Config::new("cyclocut")
+    let mut cyclocut = cmake::Config::new("cyclocut");
+
+    // Force compilation of Cyclocut in release mode on Windows due to
+    // https://github.com/rust-lang/rust/issues/39016
+    #[cfg(all(debug_assertions, target_os = "windows"))]
+    let cyclocut = cyclocut.profile("Release");
+
+    let cyclocut = cyclocut
         .env("CYCLONE_INCLUDE", &cyclonedds_include)
         .env("CYCLONE_LIB", &cyclonedds_lib)
         .define("CYCLONE_INCLUDE", cyclonedds_include.clone())
