@@ -81,6 +81,7 @@ fn main() {
     // Add Windows libraries required by Cyclone to link
     #[cfg(target_os = "windows")]
     println!("cargo:rustc-link-lib=Iphlpapi");
+    #[cfg(target_os = "windows")]
     println!("cargo:rustc-link-lib=DbgHelp");
 
     // Build cyclocut
