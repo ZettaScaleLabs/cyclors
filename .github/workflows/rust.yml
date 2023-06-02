@@ -22,6 +22,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install ACL
+        if: startsWith(matrix.os,'ubuntu')
         run: sudo apt-get -y install acl-dev
       - name: Build
         run: cargo build --verbose
