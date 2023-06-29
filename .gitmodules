@@ -1,4 +1,6 @@
 [submodule "cyclonedds"]
 	path = cyclonedds
 	url = https://github.com/eclipse-cyclonedds/cyclonedds.git
-	branch = releases/0.7.x
+[submodule "iceoryx"]
+	path = iceoryx
+	url = https://github.com/eclipse-iceoryx/iceoryx.git

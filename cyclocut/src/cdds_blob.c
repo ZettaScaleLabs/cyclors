@@ -230,7 +230,7 @@ static struct ddsi_serdata *cdds_to_ser_ref(const struct ddsi_serdata *serdata_c
   CY_DEBUG_WA("Called <cdds_to_ser_ref> pl->size = %zu\n", pl->size);
 
   ref->iov_base = pl->payload + cdr_off;
-  u_int8_t *buf = (u_int8_t *)ref->iov_base;
+  uint8_t *buf = (uint8_t *)ref->iov_base;
   ref->iov_len = cdr_sz;
   return ddsi_serdata_ref(serdata_common);
 }
