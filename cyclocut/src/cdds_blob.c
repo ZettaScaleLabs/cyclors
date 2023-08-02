@@ -15,6 +15,9 @@
 #include <limits.h>
 #include <string.h>
 #include "cdds/cdds_util.h"
+#include "dds/ddsi/ddsi_radmin.h"
+#include "dds/ddsi/ddsi_serdata.h"
+
 
 struct cdds_ddsi_payload
 {
