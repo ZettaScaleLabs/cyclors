@@ -24,7 +24,11 @@ jobs:
       - name: Install ACL
         if: startsWith(matrix.os,'ubuntu')
         run: sudo apt-get -y install acl-dev
-      - name: Build
+      - name: Build (without Iceoryx)
         run: cargo build --verbose
-      - name: Run tests
+      - name: Build (with Iceoryx)
+        run: cargo build --features iceoryx --verbose
+      - name: Run tests (without Iceoryx)
         run: cargo test --verbose
+      - name: Run tests (with Iceoryx)
+        run: cargo test --features iceoryx --verbose
