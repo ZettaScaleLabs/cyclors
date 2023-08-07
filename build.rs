@@ -66,6 +66,11 @@ fn main() {
         #[cfg(any(target_os = "macos"))]
         println!("cargo:rustc-link-lib=c++");
     }
+    #[cfg(not(feature = "iceoryx"))]
+    {
+        cyclonedds = cyclonedds
+        .define("ENABLE_SHM", "NO");
+    }
 
     // Finish configuration of cyclonedds build
     cyclonedds = cyclonedds
