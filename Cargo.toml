@@ -26,3 +26,6 @@ serde_json = "1.0.94"
 [build-dependencies]
 bindgen = "0.60"
 cmake = "0.1"
+
+[features]
+iceoryx = []

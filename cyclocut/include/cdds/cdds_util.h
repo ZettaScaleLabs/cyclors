@@ -15,8 +15,6 @@
 #define ATOLAB_CDDS_UTIL_H_
 
 #include "dds/dds.h"
-#include "dds/ddsi/ddsi_serdata.h"
-#include "dds/ddsi/ddsi_radmin.h"
 
 //#define CY_DEBUG_ON 1
 #ifdef CY_DEBUG_ON
