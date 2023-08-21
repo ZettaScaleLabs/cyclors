@@ -54,6 +54,7 @@ pub struct Qos {
     pub entity_name: Option<EntityName>,
     pub properties: Option<HashMap<String, String>>,
     pub ignore_local: Option<IgnoreLocal>,
+    pub data_representation: Option<Vec<dds_data_representation_id_t>>,
 }
 
 impl Qos {
@@ -85,6 +86,7 @@ impl Qos {
             entity_name: entity_name_from_qos_native(qos),
             properties: properties_from_qos_native(qos),
             ignore_local: ignore_local_from_qos_native(qos),
+            data_representation: data_representation_from_qos_native(qos),
         }
     }
 
@@ -118,6 +120,7 @@ impl Qos {
             entity_name_to_qos_native(qos, &self.entity_name);
             properties_to_qos_native(qos, &self.properties);
             ignore_local_to_qos_native(qos, &self.ignore_local);
+            data_representation_to_qos_native(qos, &self.data_representation);
 
             qos
         }
@@ -1201,6 +1204,31 @@ unsafe fn entity_name_to_qos_native(qos: *mut dds_qos_t, entity_name: &Option<En
     }
 }
 
+unsafe fn data_representation_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<dds_data_representation_id_t>> {
+
+    let mut n: u32 = 0;
+    let mut values_ptr: *mut dds_data_representation_id_t = std::ptr::null_mut();
+
+    if dds_qget_data_representation(qos, &mut n, &mut values_ptr) {
+        let mut values: Vec<dds_data_representation_id_t> = Vec::with_capacity(n as usize);
+        for k in 0..n {
+            let value = *values_ptr.offset(k as isize) as dds_data_representation_id_t;
+            values.push(value);
+        }
+        // Cyclone DDS returns a copy so need to free the memory
+        dds_free(values_ptr as *mut ::std::os::raw::c_void);
+        Some(values)
+    } else {
+        None
+    }
+}
+
+unsafe fn data_representation_to_qos_native(qos: *mut dds_qos_t, data_representation: &Option<Vec<dds_data_representation_id_t>>) {
+    if let Some(values) = data_representation {
+        dds_qset_data_representation(qos, values.len() as u32, values.as_ptr());
+    }
+}
+
 //TODO replace when stable https://github.com/rust-lang/rust/issues/65816
 #[inline]
 fn vec_into_raw_parts<T>(v: Vec<T>) -> (*mut T, usize, usize) {
@@ -1236,6 +1264,7 @@ fn assert_no_policies_set(qos: &Qos) {
     assert!(qos.entity_name.is_none());
     assert!(qos.properties.is_none());
     assert!(qos.ignore_local.is_none());
+    assert!(qos.data_representation.is_none());
 }
 
 #[cfg(test)]
@@ -1266,6 +1295,7 @@ fn assert_all_policies_set(qos: &Qos) {
     assert!(qos.entity_name.is_some());
     assert!(qos.properties.is_some());
     assert!(qos.ignore_local.is_some());
+    assert!(qos.data_representation.is_some());
 }
 
 #[test]
@@ -1967,7 +1997,7 @@ fn test_partition_to_native() {
 
         let mut n: u32 = 0;
         let mut ps: *mut *mut ::std::os::raw::c_char = std::ptr::null_mut();
-        assert!(dds_qget_partition(qos_native, &mut n, &mut ps,));
+        assert!(dds_qget_partition(qos_native, &mut n, &mut ps));
         assert_eq!(n, partitions.len() as u32);
 
         for k in 0..n {
@@ -2755,6 +2785,57 @@ fn test_ignore_local_from_native() {
 }
 
 #[test]
+fn test_data_representation_to_native() {
+    unsafe {
+        let qos_native = dds_create_qos();
+
+        let values: Vec<dds_data_representation_id_t> = vec![
+            DDS_DATA_REPRESENTATION_XCDR1 as dds_data_representation_id_t,
+            DDS_DATA_REPRESENTATION_XCDR2 as dds_data_representation_id_t,
+        ];
+        let data_representation: Option<Vec<dds_data_representation_id_t>> = Some(values.clone());
+        data_representation_to_qos_native(qos_native, &data_representation);
+
+        let mut n: u32 = 0;
+        let mut values_ptr: *mut dds_data_representation_id_t = std::ptr::null_mut();
+        assert!(dds_qget_data_representation(qos_native, &mut n, &mut values_ptr));
+        assert_eq!(n, values.len() as u32);
+
+        for k in 0..n {
+            let value = *values_ptr.offset(k as isize) as dds_data_representation_id_t;
+            assert_eq!(values[k as usize], value);
+        }
+
+        dds_free(values_ptr as *mut ::std::os::raw::c_void);
+        dds_delete_qos(qos_native);
+    }
+}
+
+#[test]
+fn test_data_representation_from_native() {
+    unsafe {
+        let qos_native = dds_create_qos();
+
+        let values: Vec<dds_data_representation_id_t> = vec![
+            DDS_DATA_REPRESENTATION_XCDR1 as dds_data_representation_id_t,
+            DDS_DATA_REPRESENTATION_XCDR2 as dds_data_representation_id_t,
+        ];
+        dds_qset_data_representation(qos_native, values.len() as u32, values.as_ptr());
+
+        let policy = data_representation_from_qos_native(qos_native);
+        assert!(policy.is_some());
+        let policy = policy.unwrap();
+        assert_eq!(policy.len(), values.len());
+
+        for k in 0..policy.len() {
+            assert_eq!(values[k], policy[k]);
+        }
+
+        dds_delete_qos(qos_native);
+    }
+}
+
+#[test]
 fn test_default_qos_serialization() {
     unsafe {
         let qos_native = dds_create_qos();
@@ -2868,6 +2949,12 @@ fn test_fully_populated_qos_serialization() {
 
         let ignore_local = Some(IgnoreLocal::default());
         ignore_local_to_qos_native(qos_native, &ignore_local);
+
+        let data_representation: Option<Vec<dds_data_representation_id_t>> = Some(vec![
+            DDS_DATA_REPRESENTATION_XCDR1 as dds_data_representation_id_t,
+            DDS_DATA_REPRESENTATION_XCDR2 as dds_data_representation_id_t,
+        ]);
+        data_representation_to_qos_native(qos_native, &data_representation);
 
         // Now test serialization with a populated Qos struct
         let qos = Qos::from_qos_native(qos_native);
