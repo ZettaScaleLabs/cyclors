@@ -141,7 +141,7 @@ static void cdds_serdata_free(struct ddsi_serdata *sd)
 
 static struct ddsi_serdata *cdds_serdata_from_ser_iov(const struct ddsi_sertype *tpcmn, enum ddsi_serdata_kind kind, ddsrt_msg_iovlen_t niov, const ddsrt_iovec_t *iov, size_t size)
 {
-  CY_DEBUG_WA("==> <cdds_serdata_from_ser_iov> for %s -- size %zu\n", tpcmn->name, size);
+  CY_DEBUG_WA("==> <cdds_serdata_from_ser_iov> for %s -- size %zu\n", tpcmn->type_name, size);
   struct cdds_ddsi_payload *zp = (struct cdds_ddsi_payload *)malloc(sizeof(struct cdds_ddsi_payload));
   ddsi_serdata_init(&zp->sd, tpcmn, kind);
   zp->size = size;
@@ -173,7 +173,7 @@ static struct ddsi_serdata *cdds_serdata_from_ser(
     enum ddsi_serdata_kind kind,
     const struct ddsi_rdata *fragchain, size_t size)
 {
-  CY_DEBUG_WA("Called <cdds_serdata_from_ser> for %s for %zu bytes\n", tpcmn->name, size);
+  CY_DEBUG_WA("Called <cdds_serdata_from_ser> for %s for %zu bytes\n", tpcmn->type_name, size);
   struct cdds_ddsi_payload *csd = (struct cdds_ddsi_payload *)malloc(sizeof(struct cdds_ddsi_payload));
   ddsi_serdata_init(&csd->sd, tpcmn, kind);
   csd->payload = (unsigned char *)malloc(size);

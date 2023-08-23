@@ -70,3 +70,10 @@ extern "C" {
         size: usize,
     ) -> *mut ddsi_serdata;
 }
+extern "C" {
+    pub fn ddsi_serdata_from_sample(
+        type_: *const ddsi_sertype,
+        kind: ddsi_serdata_kind,
+        sample: *const ::std::os::raw::c_void,
+    ) -> *mut ddsi_serdata;
+}
