@@ -522,15 +522,11 @@ pub struct EntityName {
 }
 
 unsafe fn user_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
-    let mut sz: size_t = 0;
+    let mut sz: usize = 0;
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_userdata(qos, &mut value, &mut sz) {
         // Cyclone DDS returns a copy of the value so okay to take ownership
-        let vector = Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz as usize,
-            sz as usize,
-        );
+        let vector = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
         Some(vector)
     } else {
         None
@@ -541,24 +537,16 @@ unsafe fn user_data_to_qos_native(qos: *mut dds_qos_t, user_data: &Option<Vec<u8
     if let Some(user_data) = user_data {
         // Cyclone DDS makes a copy of the data
         let ptr = user_data.as_ptr();
-        dds_qset_userdata(
-            qos,
-            ptr as *const ::std::os::raw::c_void,
-            user_data.len() as size_t,
-        );
+        dds_qset_userdata(qos, ptr as *const ::std::os::raw::c_void, user_data.len());
     }
 }
 
 unsafe fn topic_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
-    let mut sz: size_t = 0;
+    let mut sz: usize = 0;
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_topicdata(qos, &mut value, &mut sz) {
         // Cyclone DDS returns a copy of the value so okay to take ownership
-        let vector = Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz as usize,
-            sz as usize,
-        );
+        let vector = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
         Some(vector)
     } else {
         None
@@ -569,24 +557,16 @@ unsafe fn topic_data_to_qos_native(qos: *mut dds_qos_t, topic_data: &Option<Vec<
     if let Some(topic_data) = topic_data {
         // Cyclone DDS makes a copy of the data
         let ptr = topic_data.as_ptr();
-        dds_qset_topicdata(
-            qos,
-            ptr as *const ::std::os::raw::c_void,
-            topic_data.len() as size_t,
-        );
+        dds_qset_topicdata(qos, ptr as *const ::std::os::raw::c_void, topic_data.len());
     }
 }
 
 unsafe fn group_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
-    let mut sz: size_t = 0;
+    let mut sz: usize = 0;
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_groupdata(qos, &mut value, &mut sz) {
         // Cyclone DDS returns a copy of the value so okay to take ownership
-        let vector = Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz as usize,
-            sz as usize,
-        );
+        let vector = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
         Some(vector)
     } else {
         None
@@ -597,11 +577,7 @@ unsafe fn group_data_to_qos_native(qos: *mut dds_qos_t, group_data: &Option<Vec<
     if let Some(group_data) = group_data {
         // Cyclone DDS makes a copy of the data
         let ptr = group_data.as_ptr();
-        dds_qset_groupdata(
-            qos,
-            ptr as *const ::std::os::raw::c_void,
-            group_data.len() as size_t,
-        );
+        dds_qset_groupdata(qos, ptr as *const ::std::os::raw::c_void, group_data.len());
     }
 }
 
@@ -1204,8 +1180,9 @@ unsafe fn entity_name_to_qos_native(qos: *mut dds_qos_t, entity_name: &Option<En
     }
 }
 
-unsafe fn data_representation_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<dds_data_representation_id_t>> {
-
+unsafe fn data_representation_from_qos_native(
+    qos: *const dds_qos_t,
+) -> Option<Vec<dds_data_representation_id_t>> {
     let mut n: u32 = 0;
     let mut values_ptr: *mut dds_data_representation_id_t = std::ptr::null_mut();
 
@@ -1223,7 +1200,10 @@ unsafe fn data_representation_from_qos_native(qos: *const dds_qos_t) -> Option<V
     }
 }
 
-unsafe fn data_representation_to_qos_native(qos: *mut dds_qos_t, data_representation: &Option<Vec<dds_data_representation_id_t>>) {
+unsafe fn data_representation_to_qos_native(
+    qos: *mut dds_qos_t,
+    data_representation: &Option<Vec<dds_data_representation_id_t>>,
+) {
     if let Some(values) = data_representation {
         dds_qset_data_representation(qos, values.len() as u32, values.as_ptr());
     }
@@ -1321,15 +1301,11 @@ fn test_user_data_to_native() {
         let policy = Some(create_u8_vec_for_tests());
         user_data_to_qos_native(qos_native, &policy);
 
-        let mut sz: size_t = 0;
+        let mut sz: usize = 0;
         let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
         assert!(dds_qget_userdata(qos_native, &mut value, &mut sz));
 
-        let output = Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz as usize,
-            sz as usize,
-        );
+        let output = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
         assert!(output.len() == 5);
         assert_eq!(output, policy.unwrap());
 
@@ -1347,7 +1323,7 @@ fn test_user_data_from_native() {
         dds_qset_userdata(
             qos_native,
             ptr as *const ::std::os::raw::c_void,
-            test_vec.len() as size_t,
+            test_vec.len(),
         );
 
         let policy = user_data_from_qos_native(qos_native);
@@ -1367,15 +1343,11 @@ fn test_topic_data_to_native() {
         let policy = Some(create_u8_vec_for_tests());
         topic_data_to_qos_native(qos_native, &policy);
 
-        let mut sz: size_t = 0;
+        let mut sz: usize = 0;
         let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
         assert!(dds_qget_topicdata(qos_native, &mut value, &mut sz));
 
-        let output = Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz as usize,
-            sz as usize,
-        );
+        let output = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
         assert!(output.len() == 5);
         assert_eq!(output, policy.unwrap());
 
@@ -1393,7 +1365,7 @@ fn test_topic_data_from_native() {
         dds_qset_topicdata(
             qos_native,
             ptr as *const ::std::os::raw::c_void,
-            test_vec.len() as size_t,
+            test_vec.len(),
         );
 
         let policy = topic_data_from_qos_native(qos_native);
@@ -1413,15 +1385,11 @@ fn test_group_data_to_native() {
         let policy = Some(create_u8_vec_for_tests());
         group_data_to_qos_native(qos_native, &policy);
 
-        let mut sz: size_t = 0;
+        let mut sz: usize = 0;
         let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
         assert!(dds_qget_groupdata(qos_native, &mut value, &mut sz));
 
-        let output = Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz as usize,
-            sz as usize,
-        );
+        let output = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
         assert!(output.len() == 5);
         assert_eq!(output, policy.unwrap());
 
@@ -1439,7 +1407,7 @@ fn test_group_data_from_native() {
         dds_qset_groupdata(
             qos_native,
             ptr as *const ::std::os::raw::c_void,
-            test_vec.len() as size_t,
+            test_vec.len(),
         );
 
         let policy = group_data_from_qos_native(qos_native);
@@ -2798,7 +2766,11 @@ fn test_data_representation_to_native() {
 
         let mut n: u32 = 0;
         let mut values_ptr: *mut dds_data_representation_id_t = std::ptr::null_mut();
-        assert!(dds_qget_data_representation(qos_native, &mut n, &mut values_ptr));
+        assert!(dds_qget_data_representation(
+            qos_native,
+            &mut n,
+            &mut values_ptr
+        ));
         assert_eq!(n, values.len() as u32);
 
         for k in 0..n {
