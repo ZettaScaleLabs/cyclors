@@ -63,13 +63,12 @@ fn main() {
         #[cfg(not(any(target_os = "windows", target_os = "macos")))]
         println!("cargo:rustc-link-lib=stdc++");
 
-        #[cfg(any(target_os = "macos"))]
+        #[cfg(target_os = "macos")]
         println!("cargo:rustc-link-lib=c++");
     }
     #[cfg(not(feature = "iceoryx"))]
     {
-        cyclonedds = cyclonedds
-        .define("ENABLE_SHM", "NO");
+        cyclonedds = cyclonedds.define("ENABLE_SHM", "NO");
     }
 
     // Finish configuration of cyclonedds build
@@ -148,9 +147,7 @@ fn main() {
         .blocklist_type("^(.*IMAGE_TLS_DIRECTORY.*)$");
 
     // Generate bindings
-    let bindings = bindings
-        .generate()
-        .expect("Unable to generate bindings");
+    let bindings = bindings.generate().expect("Unable to generate bindings");
 
     bindings
         .write_to_file(out_dir.join("bindings.rs"))
