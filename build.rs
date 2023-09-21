@@ -51,7 +51,7 @@ fn main() {
             .env("iceoryx_binding_c_DIR", iceoryx_install_path)
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
             .env("iceoryx_posh_DIR", iceoryx_install_path)
-            .define("ENABLE_SHM", "YES");
+            .define("ENABLE_ICEORYX", "YES");
 
         bindings = bindings
             .clang_arg(format!("-I{}", iceoryx_include.to_str().unwrap()))
