@@ -24,10 +24,6 @@ jobs:
       - name: Install ACL
         if: startsWith(matrix.os,'ubuntu')
         run: sudo apt-get -y install acl-dev
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          components: rustfmt, clippy
       - name: Code format check
         uses: actions-rs/cargo@v1
         with:
