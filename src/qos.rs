@@ -1218,8 +1218,8 @@ unsafe fn data_representation_to_qos_native(
 
 /// Return None if v is the default, Some(v) otherwise
 #[inline]
-fn to_option<T: Default + Eq + std::fmt::Debug>(v: T) -> Option<T> {
-    if is_default(&v) {
+fn to_option<T: Default + Eq>(v: T) -> Option<T> {
+    if is_default_value(&v) {
         None
     } else {
         Some(v)
@@ -1228,20 +1228,15 @@ fn to_option<T: Default + Eq + std::fmt::Debug>(v: T) -> Option<T> {
 
 /// Return true if `v` == `T::default()`
 #[inline]
-pub fn is_default<T: Default + Eq + std::fmt::Debug>(v: &T) -> bool {
-    println!(
-        "is_default {v:?} vs {:?} => {:?}",
-        &T::default(),
-        v == &T::default()
-    );
+pub(crate) fn is_default_value<T: Default + Eq>(v: &T) -> bool {
     v == &T::default()
 }
 
 /// Return true if `o` is `None` or is `Some(T::default())`
 #[inline]
-pub fn is_option_default<T: Default + Eq + std::fmt::Debug>(o: &Option<T>) -> bool {
+pub fn is_default<T: Default + Eq>(o: &Option<T>) -> bool {
     match o {
-        Some(v) => is_default(v),
+        Some(v) => is_default_value(v),
         None => true,
     }
 }
@@ -1522,7 +1517,7 @@ fn test_durability_from_native() {
             dds_qset_durability(qos_native, kind.0);
 
             let policy = durability_from_qos_native(qos_native);
-            if is_default(&kind.1) {
+            if is_default_value(&kind.1) {
                 assert!(policy.is_none())
             } else {
                 assert!(policy.is_some());
@@ -1834,7 +1829,7 @@ fn test_ownership_from_native() {
             dds_qset_ownership(qos_native, kind.0);
 
             let policy = ownership_from_qos_native(qos_native);
-            if is_default(&kind.1) {
+            if is_default_value(&kind.1) {
                 assert!(policy.is_none())
             } else {
                 assert!(policy.is_some());
@@ -2246,7 +2241,7 @@ fn test_destination_order_from_native() {
             dds_qset_destination_order(qos_native, kind.0);
 
             let policy = destination_order_from_qos_native(qos_native);
-            if is_default(&kind.1) {
+            if is_default_value(&kind.1) {
                 assert!(policy.is_none())
             } else {
                 assert!(policy.is_some());
@@ -2791,7 +2786,7 @@ fn test_ignore_local_from_native() {
             dds_qset_ignorelocal(qos_native, kind.0);
 
             let policy = ignore_local_from_qos_native(qos_native);
-            if is_default(&kind.1) {
+            if is_default_value(&kind.1) {
                 assert!(policy.is_none())
             } else {
                 assert!(policy.is_some());
