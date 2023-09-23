@@ -57,6 +57,7 @@ pub struct Qos {
     pub data_representation: Option<Vec<dds_data_representation_id_t>>,
 }
 
+#[allow(clippy::missing_safety_doc)]
 impl Qos {
     pub unsafe fn from_qos_native(qos: *mut dds_qos_t) -> Self {
         Qos {
@@ -144,16 +145,15 @@ impl Default for Qos {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
-#[derivative(Default)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 pub struct Durability {
-    #[derivative(Default(value = "DurabilityKind::VOLATILE"))]
     pub kind: DurabilityKind,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum DurabilityKind {
+    #[default]
     VOLATILE = dds_durability_kind_DDS_DURABILITY_VOLATILE as isize,
     TRANSIENT_LOCAL = dds_durability_kind_DDS_DURABILITY_TRANSIENT_LOCAL as isize,
     TRANSIENT = dds_durability_kind_DDS_DURABILITY_TRANSIENT as isize,
@@ -231,16 +231,15 @@ pub struct LatencyBudget {
     pub duration: dds_duration_t,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
-#[derivative(Default)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 pub struct DestinationOrder {
-    #[derivative(Default(value = "DestinationOrderKind::BY_RECEPTION_TIMESTAMP"))]
     pub kind: DestinationOrderKind,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum DestinationOrderKind {
+    #[default]
     BY_RECEPTION_TIMESTAMP =
         dds_destination_order_kind_DDS_DESTINATIONORDER_BY_RECEPTION_TIMESTAMP as isize,
     BY_SOURCE_TIMESTAMP =
@@ -293,16 +292,15 @@ impl From<&dds_liveliness_kind_t> for LivelinessKind {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
-#[derivative(Default)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 pub struct Ownership {
-    #[derivative(Default(value = "OwnershipKind::SHARED"))]
     pub kind: OwnershipKind,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum OwnershipKind {
+    #[default]
     SHARED = dds_ownership_kind_DDS_OWNERSHIP_SHARED as isize,
     EXCLUSIVE = dds_ownership_kind_DDS_OWNERSHIP_EXCLUSIVE as isize,
 }
@@ -321,15 +319,15 @@ impl From<&dds_ownership_kind_t> for OwnershipKind {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 #[derivative(Default)]
 pub struct History {
-    #[derivative(Default(value = "HistoryKind::KEEP_LAST"))]
     pub kind: HistoryKind,
     #[derivative(Default(value = "1"))]
     pub depth: i32,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum HistoryKind {
+    #[default]
     KEEP_LAST = dds_history_kind_DDS_HISTORY_KEEP_LAST as isize,
     KEEP_ALL = dds_history_kind_DDS_HISTORY_KEEP_ALL as isize,
 }
@@ -359,7 +357,6 @@ pub struct ResourceLimits {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 #[derivative(Default)]
 pub struct Presentation {
-    #[derivative(Default(value = "PresentationAccessScopeKind::INSTANCE"))]
     pub access_scope: PresentationAccessScopeKind,
     #[derivative(Default(value = "false"))]
     pub coherent_access: bool,
@@ -367,9 +364,10 @@ pub struct Presentation {
     pub ordered_access: bool,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum PresentationAccessScopeKind {
+    #[default]
     INSTANCE = dds_presentation_access_scope_kind_DDS_PRESENTATION_INSTANCE as isize,
     TOPIC = dds_presentation_access_scope_kind_DDS_PRESENTATION_TOPIC as isize,
     GROUP = dds_presentation_access_scope_kind_DDS_PRESENTATION_GROUP as isize,
@@ -447,16 +445,15 @@ pub struct WriterBatching {
     pub batch_updates: bool,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
-#[derivative(Default)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 pub struct IgnoreLocal {
-    #[derivative(Default(value = "IgnoreLocalKind::NONE"))]
     pub kind: IgnoreLocalKind,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum IgnoreLocalKind {
+    #[default]
     NONE = dds_ignorelocal_kind_DDS_IGNORELOCAL_NONE as isize,
     PARTICIPANT = dds_ignorelocal_kind_DDS_IGNORELOCAL_PARTICIPANT as isize,
     PROCESS = dds_ignorelocal_kind_DDS_IGNORELOCAL_PROCESS as isize,
@@ -477,7 +474,6 @@ impl From<&dds_ignorelocal_kind_t> for IgnoreLocalKind {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
 #[derivative(Default)]
 pub struct TypeConsistency {
-    #[derivative(Default(value = "TypeConsistencyKind::DISALLOW_TYPE_COERCION"))]
     pub kind: TypeConsistencyKind,
     #[derivative(Default(value = "false"))]
     pub ignore_sequence_bounds: bool,
@@ -491,9 +487,10 @@ pub struct TypeConsistency {
     pub force_type_validation: bool,
 }
 
-#[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 pub enum TypeConsistencyKind {
+    #[default]
     DISALLOW_TYPE_COERCION =
         dds_type_consistency_kind_DDS_TYPE_CONSISTENCY_DISALLOW_TYPE_COERCION as isize,
     ALLOW_TYPE_COERCION =
@@ -526,8 +523,11 @@ unsafe fn user_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_userdata(qos, &mut value, &mut sz) {
         // Cyclone DDS returns a copy of the value so okay to take ownership
-        let vector = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
-        Some(vector)
+        to_option(Vec::from_raw_parts(
+            value as *mut ::std::os::raw::c_uchar,
+            sz,
+            sz,
+        ))
     } else {
         None
     }
@@ -546,8 +546,11 @@ unsafe fn topic_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_topicdata(qos, &mut value, &mut sz) {
         // Cyclone DDS returns a copy of the value so okay to take ownership
-        let vector = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
-        Some(vector)
+        to_option(Vec::from_raw_parts(
+            value as *mut ::std::os::raw::c_uchar,
+            sz,
+            sz,
+        ))
     } else {
         None
     }
@@ -566,8 +569,11 @@ unsafe fn group_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_groupdata(qos, &mut value, &mut sz) {
         // Cyclone DDS returns a copy of the value so okay to take ownership
-        let vector = Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz);
-        Some(vector)
+        to_option(Vec::from_raw_parts(
+            value as *mut ::std::os::raw::c_uchar,
+            sz,
+            sz,
+        ))
     } else {
         None
     }
@@ -584,8 +590,9 @@ unsafe fn group_data_to_qos_native(qos: *mut dds_qos_t, group_data: &Option<Vec<
 unsafe fn durability_from_qos_native(qos: *const dds_qos_t) -> Option<Durability> {
     let mut dur_kind: dds_durability_kind_t = dds_durability_kind_DDS_DURABILITY_VOLATILE;
     if dds_qget_durability(qos, &mut dur_kind) {
-        let kind = DurabilityKind::from(&dur_kind);
-        Some(Durability { kind })
+        to_option(Durability {
+            kind: DurabilityKind::from(&dur_kind),
+        })
     } else {
         None
     }
@@ -601,8 +608,10 @@ unsafe fn history_from_qos_native(qos: *const dds_qos_t) -> Option<History> {
     let mut hist_kind: dds_history_kind_t = dds_history_kind_DDS_HISTORY_KEEP_LAST;
     let mut depth: i32 = 1;
     if dds_qget_history(qos, &mut hist_kind, &mut depth) {
-        let kind = HistoryKind::from(&hist_kind);
-        Some(History { kind, depth })
+        to_option(History {
+            kind: HistoryKind::from(&hist_kind),
+            depth,
+        })
     } else {
         None
     }
@@ -624,7 +633,7 @@ unsafe fn resource_limits_from_qos_native(qos: *const dds_qos_t) -> Option<Resou
         &mut max_instances,
         &mut max_samples_per_instance,
     ) {
-        Some(ResourceLimits {
+        to_option(ResourceLimits {
             max_samples,
             max_instances,
             max_samples_per_instance,
@@ -659,9 +668,8 @@ unsafe fn presentation_from_qos_native(qos: *const dds_qos_t) -> Option<Presenta
         &mut coherent_access,
         &mut ordered_access,
     ) {
-        let access_scope = PresentationAccessScopeKind::from(&pres_access_scope);
-        Some(Presentation {
-            access_scope,
+        to_option(Presentation {
+            access_scope: PresentationAccessScopeKind::from(&pres_access_scope),
             coherent_access,
             ordered_access,
         })
@@ -684,7 +692,7 @@ unsafe fn presentation_to_qos_native(qos: *mut dds_qos_t, presentation: &Option<
 unsafe fn lifespan_from_qos_native(qos: *const dds_qos_t) -> Option<Lifespan> {
     let mut duration: dds_duration_t = DDS_INFINITE_TIME;
     if dds_qget_lifespan(qos, &mut duration) {
-        Some(Lifespan { duration })
+        to_option(Lifespan { duration })
     } else {
         None
     }
@@ -699,7 +707,7 @@ unsafe fn lifespan_to_qos_native(qos: *mut dds_qos_t, lifespan: &Option<Lifespan
 unsafe fn deadline_from_qos_native(qos: *const dds_qos_t) -> Option<Deadline> {
     let mut period: dds_duration_t = DDS_INFINITE_TIME;
     if dds_qget_deadline(qos, &mut period) {
-        Some(Deadline { period })
+        to_option(Deadline { period })
     } else {
         None
     }
@@ -714,7 +722,7 @@ unsafe fn deadline_to_qos_native(qos: *mut dds_qos_t, deadline: &Option<Deadline
 unsafe fn latency_budget_from_qos_native(qos: *const dds_qos_t) -> Option<LatencyBudget> {
     let mut duration: dds_duration_t = 0;
     if dds_qget_latency_budget(qos, &mut duration) {
-        Some(LatencyBudget { duration })
+        to_option(LatencyBudget { duration })
     } else {
         None
     }
@@ -732,8 +740,9 @@ unsafe fn latency_budget_to_qos_native(
 unsafe fn ownership_from_qos_native(qos: *const dds_qos_t) -> Option<Ownership> {
     let mut own_kind: dds_ownership_kind_t = dds_ownership_kind_DDS_OWNERSHIP_SHARED;
     if dds_qget_ownership(qos, &mut own_kind) {
-        let kind = OwnershipKind::from(&own_kind);
-        Some(Ownership { kind })
+        to_option(Ownership {
+            kind: OwnershipKind::from(&own_kind),
+        })
     } else {
         None
     }
@@ -748,7 +757,7 @@ unsafe fn ownership_to_qos_native(qos: *mut dds_qos_t, ownership: &Option<Owners
 unsafe fn ownership_strength_from_qos_native(qos: *const dds_qos_t) -> Option<OwnershipStrength> {
     let mut value: i32 = 0;
     if dds_qget_ownership_strength(qos, &mut value) {
-        Some(OwnershipStrength { value })
+        to_option(OwnershipStrength { value })
     } else {
         None
     }
@@ -767,9 +776,8 @@ unsafe fn liveliness_from_qos_native(qos: *const dds_qos_t) -> Option<Liveliness
     let mut live_kind: dds_liveliness_kind_t = dds_liveliness_kind_DDS_LIVELINESS_AUTOMATIC;
     let mut lease_duration: dds_duration_t = DDS_INFINITE_TIME;
     if dds_qget_liveliness(qos, &mut live_kind, &mut lease_duration) {
-        let kind = LivelinessKind::from(&live_kind);
-        Some(Liveliness {
-            kind,
+        to_option(Liveliness {
+            kind: LivelinessKind::from(&live_kind),
             lease_duration,
         })
     } else {
@@ -790,7 +798,7 @@ unsafe fn liveliness_to_qos_native(qos: *mut dds_qos_t, liveliness: &Option<Live
 unsafe fn time_based_filter_from_qos_native(qos: *const dds_qos_t) -> Option<TimeBasedFilter> {
     let mut minimum_separation: dds_duration_t = 0;
     if dds_qget_time_based_filter(qos, &mut minimum_separation) {
-        Some(TimeBasedFilter { minimum_separation })
+        to_option(TimeBasedFilter { minimum_separation })
     } else {
         None
     }
@@ -822,7 +830,7 @@ unsafe fn partition_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<String>
         }
         // Cyclone DDS returns a copy of the pointer array so need to free the memory
         dds_free(ps as *mut ::std::os::raw::c_void);
-        Some(partitions)
+        to_option(partitions)
     } else {
         None
     }
@@ -849,9 +857,8 @@ unsafe fn reliability_from_qos_native(qos: *const dds_qos_t) -> Option<Reliabili
     let mut rel_kind: dds_reliability_kind_t = dds_reliability_kind_DDS_RELIABILITY_BEST_EFFORT;
     let mut max_blocking_time: dds_duration_t = DDS_100MS_DURATION;
     if dds_qget_reliability(qos, &mut rel_kind, &mut max_blocking_time) {
-        let kind = ReliabilityKind::from(&rel_kind);
-        Some(Reliability {
-            kind,
+        to_option(Reliability {
+            kind: ReliabilityKind::from(&rel_kind),
             max_blocking_time,
         })
     } else {
@@ -872,7 +879,7 @@ unsafe fn reliability_to_qos_native(qos: *mut dds_qos_t, reliability: &Option<Re
 unsafe fn transport_priority_from_qos_native(qos: *const dds_qos_t) -> Option<TransportPriority> {
     let mut value: i32 = 0;
     if dds_qget_transport_priority(qos, &mut value) {
-        Some(TransportPriority { value })
+        to_option(TransportPriority { value })
     } else {
         None
     }
@@ -891,8 +898,9 @@ unsafe fn destination_order_from_qos_native(qos: *const dds_qos_t) -> Option<Des
     let mut dest_kind: dds_destination_order_kind_t =
         dds_destination_order_kind_DDS_DESTINATIONORDER_BY_RECEPTION_TIMESTAMP;
     if dds_qget_destination_order(qos, &mut dest_kind) {
-        let kind = DestinationOrderKind::from(&dest_kind);
-        Some(DestinationOrder { kind })
+        to_option(DestinationOrder {
+            kind: DestinationOrderKind::from(&dest_kind),
+        })
     } else {
         None
     }
@@ -912,7 +920,7 @@ unsafe fn writer_data_lifecycle_from_qos_native(
 ) -> Option<WriterDataLifecycle> {
     let mut autodispose_unregistered_instances: bool = false;
     if dds_qget_writer_data_lifecycle(qos, &mut autodispose_unregistered_instances) {
-        Some(WriterDataLifecycle {
+        to_option(WriterDataLifecycle {
             autodispose_unregistered_instances,
         })
     } else {
@@ -942,7 +950,7 @@ unsafe fn reader_data_lifecycle_from_qos_native(
         &mut autopurge_nowriter_samples_delay,
         &mut autopurge_disposed_samples_delay,
     ) {
-        Some(ReaderDataLifecycle {
+        to_option(ReaderDataLifecycle {
             autopurge_nowriter_samples_delay,
             autopurge_disposed_samples_delay,
         })
@@ -967,7 +975,7 @@ unsafe fn reader_data_lifecycle_to_qos_native(
 unsafe fn writer_batching_from_qos_native(qos: *const dds_qos_t) -> Option<WriterBatching> {
     let mut batch_updates: bool = false;
     if dds_qget_writer_batching(qos, &mut batch_updates) {
-        Some(WriterBatching { batch_updates })
+        to_option(WriterBatching { batch_updates })
     } else {
         None
     }
@@ -999,10 +1007,9 @@ unsafe fn durability_service_from_qos_native(qos: *const dds_qos_t) -> Option<Du
         &mut max_instances,
         &mut max_samples_per_instance,
     ) {
-        let history_kind = HistoryKind::from(&durability_history_kind);
-        Some(DurabilityService {
+        to_option(DurabilityService {
             service_cleanup_delay,
-            history_kind,
+            history_kind: HistoryKind::from(&durability_history_kind),
             history_depth,
             max_samples,
             max_instances,
@@ -1033,8 +1040,9 @@ unsafe fn durability_service_to_qos_native(
 unsafe fn ignore_local_from_qos_native(qos: *const dds_qos_t) -> Option<IgnoreLocal> {
     let mut ignore_kind: dds_ignorelocal_kind_t = dds_ignorelocal_kind_DDS_IGNORELOCAL_NONE;
     if dds_qget_ignorelocal(qos, &mut ignore_kind) {
-        let kind = IgnoreLocalKind::from(&ignore_kind);
-        Some(IgnoreLocal { kind })
+        to_option(IgnoreLocal {
+            kind: IgnoreLocalKind::from(&ignore_kind),
+        })
     } else {
         None
     }
@@ -1052,7 +1060,7 @@ unsafe fn property_from_qos_native(qos: *const dds_qos_t, name: &str) -> Option<
 
     if dds_qget_prop(qos, cname.as_ptr(), &mut pvalue) {
         let value = CStr::from_ptr(pvalue).to_str().unwrap();
-        let policy = Some(String::from(value));
+        let policy = to_option(String::from(value));
 
         // Cyclone DDS returns a copy of the string so need to free the memory
         dds_free(pvalue as *mut ::std::os::raw::c_void);
@@ -1086,7 +1094,7 @@ unsafe fn properties_from_qos_native(qos: *const dds_qos_t) -> Option<HashMap<St
         }
         // Cyclone DDS returns a copy of the pointer array so need to free the memory
         dds_free(ps as *mut ::std::os::raw::c_void);
-        Some(map)
+        to_option(map)
     } else {
         None
     }
@@ -1123,9 +1131,8 @@ unsafe fn type_consistency_from_qos_native(qos: *const dds_qos_t) -> Option<Type
         &mut prevent_type_widening,
         &mut force_type_validation,
     ) {
-        let kind = TypeConsistencyKind::from(&type_kind);
-        Some(TypeConsistency {
-            kind,
+        to_option(TypeConsistency {
+            kind: TypeConsistencyKind::from(&type_kind),
             ignore_sequence_bounds,
             ignore_string_bounds,
             ignore_member_names,
@@ -1159,7 +1166,7 @@ unsafe fn entity_name_from_qos_native(qos: *const dds_qos_t) -> Option<EntityNam
 
     if dds_qget_entity_name(qos, &mut ps) {
         let p = CStr::from_ptr(ps).to_str().unwrap();
-        let policy = Some(EntityName {
+        let policy = to_option(EntityName {
             name: String::from(p),
         });
 
@@ -1194,7 +1201,7 @@ unsafe fn data_representation_from_qos_native(
         }
         // Cyclone DDS returns a copy so need to free the memory
         dds_free(values_ptr as *mut ::std::os::raw::c_void);
-        Some(values)
+        to_option(values)
     } else {
         None
     }
@@ -1206,6 +1213,36 @@ unsafe fn data_representation_to_qos_native(
 ) {
     if let Some(values) = data_representation {
         dds_qset_data_representation(qos, values.len() as u32, values.as_ptr());
+    }
+}
+
+/// Return None if v is the default, Some(v) otherwise
+#[inline]
+fn to_option<T: Default + Eq + std::fmt::Debug>(v: T) -> Option<T> {
+    if is_default(&v) {
+        None
+    } else {
+        Some(v)
+    }
+}
+
+/// Return true if `v` == `T::default()`
+#[inline]
+pub fn is_default<T: Default + Eq + std::fmt::Debug>(v: &T) -> bool {
+    println!(
+        "is_default {v:?} vs {:?} => {:?}",
+        &T::default(),
+        v == &T::default()
+    );
+    v == &T::default()
+}
+
+/// Return true if `o` is `None` or is `Some(T::default())`
+#[inline]
+pub fn is_option_default<T: Default + Eq + std::fmt::Debug>(o: &Option<T>) -> bool {
+    match o {
+        Some(v) => is_default(v),
+        None => true,
     }
 }
 
@@ -1485,8 +1522,12 @@ fn test_durability_from_native() {
             dds_qset_durability(qos_native, kind.0);
 
             let policy = durability_from_qos_native(qos_native);
-            assert!(policy.is_some());
-            assert_eq!(policy.unwrap().kind, kind.1);
+            if is_default(&kind.1) {
+                assert!(policy.is_none())
+            } else {
+                assert!(policy.is_some());
+                assert_eq!(policy.unwrap().kind, kind.1);
+            }
 
             dds_delete_qos(qos_native);
         }
@@ -1793,8 +1834,12 @@ fn test_ownership_from_native() {
             dds_qset_ownership(qos_native, kind.0);
 
             let policy = ownership_from_qos_native(qos_native);
-            assert!(policy.is_some());
-            assert_eq!(policy.unwrap().kind, kind.1);
+            if is_default(&kind.1) {
+                assert!(policy.is_none())
+            } else {
+                assert!(policy.is_some());
+                assert_eq!(policy.unwrap().kind, kind.1);
+            }
 
             dds_delete_qos(qos_native);
         }
@@ -2201,9 +2246,12 @@ fn test_destination_order_from_native() {
             dds_qset_destination_order(qos_native, kind.0);
 
             let policy = destination_order_from_qos_native(qos_native);
-            assert!(policy.is_some());
-            let policy = policy.unwrap();
-            assert_eq!(policy.kind, kind.1);
+            if is_default(&kind.1) {
+                assert!(policy.is_none())
+            } else {
+                assert!(policy.is_some());
+                assert_eq!(policy.unwrap().kind, kind.1);
+            }
 
             dds_delete_qos(qos_native);
         }
@@ -2357,7 +2405,7 @@ fn test_writer_data_lifecycle_from_native() {
     unsafe {
         let qos_native = dds_create_qos();
 
-        let autodispose_unregistered_instances = true;
+        let autodispose_unregistered_instances = false;
         dds_qset_writer_data_lifecycle(qos_native, autodispose_unregistered_instances);
 
         let policy = writer_data_lifecycle_from_qos_native(qos_native);
@@ -2743,9 +2791,12 @@ fn test_ignore_local_from_native() {
             dds_qset_ignorelocal(qos_native, kind.0);
 
             let policy = ignore_local_from_qos_native(qos_native);
-            assert!(policy.is_some());
-            let policy = policy.unwrap();
-            assert_eq!(policy.kind, kind.1);
+            if is_default(&kind.1) {
+                assert!(policy.is_none())
+            } else {
+                assert!(policy.is_some());
+                assert_eq!(policy.unwrap().kind, kind.1);
+            }
 
             dds_delete_qos(qos_native);
         }
@@ -2844,31 +2895,46 @@ fn test_fully_populated_qos_serialization() {
         let group_data = Some(create_u8_vec_for_tests());
         group_data_to_qos_native(qos_native, &group_data);
 
-        let durability = Some(Durability::default());
+        let durability = Some(Durability {
+            kind: DurabilityKind::TRANSIENT_LOCAL,
+        });
         durability_to_qos_native(qos_native, &durability);
 
-        let durability_service = Some(DurabilityService::default());
+        let durability_service = Some(DurabilityService {
+            history_kind: HistoryKind::KEEP_ALL,
+            ..Default::default()
+        });
         durability_service_to_qos_native(qos_native, &durability_service);
 
-        let presentation = Some(Presentation::default());
+        let presentation = Some(Presentation {
+            access_scope: PresentationAccessScopeKind::TOPIC,
+            ..Default::default()
+        });
         presentation_to_qos_native(qos_native, &presentation);
 
-        let deadline = Some(Deadline::default());
+        let deadline = Some(Deadline { period: 15 });
         deadline_to_qos_native(qos_native, &deadline);
 
-        let latency_budget = Some(LatencyBudget::default());
+        let latency_budget = Some(LatencyBudget { duration: 42 });
         latency_budget_to_qos_native(qos_native, &latency_budget);
 
-        let ownership = Some(Ownership::default());
+        let ownership = Some(Ownership {
+            kind: OwnershipKind::EXCLUSIVE,
+        });
         ownership_to_qos_native(qos_native, &ownership);
 
-        let ownership_strength = Some(OwnershipStrength::default());
+        let ownership_strength = Some(OwnershipStrength { value: 12 });
         ownership_strength_to_qos_native(qos_native, &ownership_strength);
 
-        let liveliness = Some(Liveliness::default());
+        let liveliness = Some(Liveliness {
+            kind: LivelinessKind::MANUAL_BY_PARTICIPANT,
+            lease_duration: 3,
+        });
         liveliness_to_qos_native(qos_native, &liveliness);
 
-        let time_based_filter = Some(TimeBasedFilter::default());
+        let time_based_filter = Some(TimeBasedFilter {
+            minimum_separation: 56,
+        });
         time_based_filter_to_qos_native(qos_native, &time_based_filter);
 
         let mut partitions = Vec::with_capacity(2);
@@ -2877,34 +2943,55 @@ fn test_fully_populated_qos_serialization() {
         let parititons = Some(partitions);
         partition_to_qos_native(qos_native, &parititons);
 
-        let reliability = Some(Reliability::default());
+        let reliability = Some(Reliability {
+            kind: ReliabilityKind::RELIABLE,
+            max_blocking_time: 500,
+        });
         reliability_to_qos_native(qos_native, &reliability);
 
-        let transport_priority = Some(TransportPriority::default());
+        let transport_priority = Some(TransportPriority { value: 3 });
         transport_priority_to_qos_native(qos_native, &transport_priority);
 
-        let lifespan = Some(Lifespan::default());
+        let lifespan = Some(Lifespan { duration: 10 });
         lifespan_to_qos_native(qos_native, &lifespan);
 
-        let destination_order = Some(DestinationOrder::default());
+        let destination_order = Some(DestinationOrder {
+            kind: DestinationOrderKind::BY_SOURCE_TIMESTAMP,
+        });
         destination_order_to_qos_native(qos_native, &destination_order);
 
-        let history = Some(History::default());
+        let history = Some(History {
+            kind: HistoryKind::KEEP_LAST,
+            depth: 10,
+        });
         history_to_qos_native(qos_native, &history);
 
-        let resource_limits = Some(ResourceLimits::default());
+        let resource_limits = Some(ResourceLimits {
+            max_samples: 100,
+            ..Default::default()
+        });
         resource_limits_to_qos_native(qos_native, &resource_limits);
 
-        let writer_data_lifecycle = Some(WriterDataLifecycle::default());
+        let writer_data_lifecycle = Some(WriterDataLifecycle {
+            autodispose_unregistered_instances: false,
+        });
         writer_data_lifecycle_to_qos_native(qos_native, &writer_data_lifecycle);
 
-        let reader_data_lifecycle = Some(ReaderDataLifecycle::default());
+        let reader_data_lifecycle = Some(ReaderDataLifecycle {
+            autopurge_disposed_samples_delay: 30,
+            ..Default::default()
+        });
         reader_data_lifecycle_to_qos_native(qos_native, &reader_data_lifecycle);
 
-        let writer_batching = Some(WriterBatching::default());
+        let writer_batching = Some(WriterBatching {
+            batch_updates: true,
+        });
         writer_batching_to_qos_native(qos_native, &writer_batching);
 
-        let type_consistency = Some(TypeConsistency::default());
+        let type_consistency = Some(TypeConsistency {
+            kind: TypeConsistencyKind::ALLOW_TYPE_COERCION,
+            ..Default::default()
+        });
         type_consistency_to_qos_native(qos_native, &type_consistency);
 
         let entity_name = Some(EntityName {
@@ -2919,7 +3006,9 @@ fn test_fully_populated_qos_serialization() {
         let properties = Some(properties);
         properties_to_qos_native(qos_native, &properties);
 
-        let ignore_local = Some(IgnoreLocal::default());
+        let ignore_local = Some(IgnoreLocal {
+            kind: IgnoreLocalKind::PARTICIPANT,
+        });
         ignore_local_to_qos_native(qos_native, &ignore_local);
 
         let data_representation: Option<Vec<dds_data_representation_id_t>> = Some(vec![
