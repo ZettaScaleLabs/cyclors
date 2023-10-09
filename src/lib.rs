@@ -40,7 +40,12 @@ pub const DDS_DOMAIN_DEFAULT: u32 = 0xffffffff_u32;
 
 pub mod qos;
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+// deactivate clippy on bindgen generated code
+#[allow(clippy::all)]
+mod bindings {
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+}
+pub use bindings::*;
 
 /* Additional wrapper functions for select exported inline functions */
 
