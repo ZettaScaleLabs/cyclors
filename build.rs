@@ -35,27 +35,12 @@ fn main() {
             .out_dir(iceoryx_dir)
             .build();
 
-        let iceoryx_lib = iceoryx.join("lib");
-        let iceoryx_include = iceoryx.join("include/iceoryx/v2.0.3");
-
-        // Add iceoryx lib to link
-        println!("cargo:rustc-link-search=native={}", iceoryx_lib.display());
-        println!("cargo:rustc-link-lib=static=iceoryx_binding_c");
-        println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
-        println!("cargo:rustc-link-lib=static=iceoryx_posh");
-        println!("cargo:rustc-link-lib=static=iceoryx_platform");
-
         let iceoryx_install_path = iceoryx.as_os_str();
 
         cyclonedds = cyclonedds
-            .env("iceoryx_binding_c_DIR", iceoryx_install_path)
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
             .env("iceoryx_posh_DIR", iceoryx_install_path)
             .define("ENABLE_ICEORYX", "YES");
-
-        bindings = bindings
-            .clang_arg(format!("-I{}", iceoryx_include.to_str().unwrap()))
-            .clang_arg("-DDDS_HAS_SHM=1");
 
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=acl");
@@ -68,7 +53,7 @@ fn main() {
     }
     #[cfg(not(feature = "iceoryx"))]
     {
-        cyclonedds = cyclonedds.define("ENABLE_SHM", "NO");
+        cyclonedds = cyclonedds.define("ENABLE_ICEORYX", "NO");
     }
 
     // Finish configuration of cyclonedds build
