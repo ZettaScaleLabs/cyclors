@@ -272,6 +272,7 @@ dds_entity_t cdds_create_blob_topic(dds_entity_t dp, char *topic_name, char *typ
 {
   CY_DEBUG("Called <cdds_create_blob_topic> \n");
   struct ddsi_sertype *st = (struct ddsi_sertype *)malloc(sizeof(struct ddsi_sertype));
-  ddsi_sertype_init(st, type_name, &cdds_sertype_ops, &cdds_serdata_ops, is_keyless);
+  uint32_t data_type_flags = (is_keyless ? DDSI_SERTYPE_FLAG_TOPICKIND_NO_KEY : 0) & DDS_DATA_TYPE_IS_MEMCPY_SAFE;
+  ddsi_sertype_init_flags(st, type_name, &cdds_sertype_ops, &cdds_serdata_ops, data_type_flags);
   return dds_create_topic_sertype(dp, topic_name, &st, NULL, NULL, NULL);
 }
