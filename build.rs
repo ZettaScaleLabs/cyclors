@@ -36,6 +36,14 @@ fn main() {
             .build();
 
         let iceoryx_install_path = iceoryx.as_os_str();
+        let iceoryx_lib = iceoryx.join("lib");
+
+        // Add iceoryx lib to link
+        println!("cargo:rustc-link-search=native={}", iceoryx_lib.display());
+        println!("cargo:rustc-link-lib=static=iceoryx_binding_c");
+        println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
+        println!("cargo:rustc-link-lib=static=iceoryx_posh");
+        println!("cargo:rustc-link-lib=static=iceoryx_platform");
 
         cyclonedds = cyclonedds
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
