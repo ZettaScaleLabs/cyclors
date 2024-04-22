@@ -31,7 +31,7 @@ fn main() {
         let iceoryx = iceoryx.profile("Release");
 
         #[cfg(target_os = "windows")]
-        let iceoryx = iceoryx.define("CXXFLAGS", "/EHsc");
+        let iceoryx = iceoryx.cxxflag("/EHsc");
 
         let iceoryx = iceoryx
             .define("BUILD_SHARED_LIBS", "OFF")
