@@ -31,9 +31,9 @@ fn main() {
         let iceoryx = iceoryx.profile("Release");
 
         #[cfg(target_os = "windows")]
-        iceoryx = iceoryx.cxxflag("/EHsc");
+        let iceoryx = iceoryx.cxxflag("/EHsc");
 
-        iceoryx = iceoryx
+        let iceoryx = iceoryx
             .define("BUILD_SHARED_LIBS", "OFF")
             .out_dir(iceoryx_dir)
             .build();
@@ -53,7 +53,7 @@ fn main() {
             .define("ENABLE_ICEORYX", "YES");
 
         #[cfg(target_os = "windows")]
-        cyclonedds = cyclonedds.cxxflag("/std:c++20");
+        let cyclonedds = cyclonedds.cxxflag("/std:c++20");
 
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=acl");
