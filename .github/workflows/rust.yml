@@ -12,7 +12,7 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: true
+      #fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
