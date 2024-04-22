@@ -30,6 +30,9 @@ fn main() {
         #[cfg(all(debug_assertions, target_os = "windows"))]
         let iceoryx = iceoryx.profile("Release");
 
+        #[cfg(target_os = "windows")]
+        let iceoryx = iceoryx.define("CXXFLAGS", "/EHsc");
+
         let iceoryx = iceoryx
             .define("BUILD_SHARED_LIBS", "OFF")
             .out_dir(iceoryx_dir)
@@ -40,7 +43,6 @@ fn main() {
 
         // Add iceoryx lib to link
         println!("cargo:rustc-link-search=native={}", iceoryx_lib.display());
-        println!("cargo:rustc-link-lib=static=iceoryx_binding_c");
         println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
         println!("cargo:rustc-link-lib=static=iceoryx_posh");
         println!("cargo:rustc-link-lib=static=iceoryx_platform");
