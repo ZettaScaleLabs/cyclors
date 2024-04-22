@@ -47,13 +47,15 @@ fn main() {
         println!("cargo:rustc-link-lib=static=iceoryx_posh");
         println!("cargo:rustc-link-lib=static=iceoryx_platform");
 
-        #[cfg(target_os = "windows")]
-        let cyclonedds = cyclonedds.cxxflag("/std:c++20");
-
         cyclonedds = cyclonedds
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
             .env("iceoryx_posh_DIR", iceoryx_install_path)
             .define("ENABLE_ICEORYX", "YES");
+
+        #[cfg(target_os = "windows")]
+        {
+            cyclonedds = cyclonedds.cxxflag("/std:c++20");
+        }
 
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=acl");
