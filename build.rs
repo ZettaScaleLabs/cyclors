@@ -54,7 +54,7 @@ fn main() {
 
         #[cfg(target_os = "windows")]
         {
-            cyclonedds = cyclonedds.cxxflag("/std:c++20");
+            cyclonedds = cyclonedds.define("CMAKE_CXX_STANDARD", "20");
         }
 
         #[cfg(target_os = "linux")]
