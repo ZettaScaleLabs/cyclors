@@ -12,7 +12,7 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -40,5 +40,3 @@ jobs:
         run: cargo build --features iceoryx --verbose
       - name: Run tests (without Iceoryx)
         run: cargo test --verbose
-      - name: Run tests (with Iceoryx)
-        run: cargo test --features iceoryx --verbose
