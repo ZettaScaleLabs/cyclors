@@ -20,18 +20,25 @@ fn main() {
 
     #[cfg(feature = "iceoryx")]
     {
+        let supported;
+        #[cfg(target_os = "windows")]
+        {
+            print!("cargo:warning=Cyclone DDS Iceoryx PSMX plugin is not supported on Windows!");
+            supported = false;
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            supported = true;
+        }
+
+        if !supported {
+            std::process::exit(1);
+        }
+
         // Build iceoryx
         let iceoryx_dir = out_dir.join("iceoryx-build");
         dir_builder.create(&iceoryx_dir).unwrap();
         let mut iceoryx = cmake::Config::new("iceoryx/iceoryx_meta");
-
-        // Force compilation of Iceoryx in release mode on Windows due to
-        // https://github.com/rust-lang/rust/issues/39016
-        #[cfg(all(debug_assertions, target_os = "windows"))]
-        let iceoryx = iceoryx.profile("Release");
-
-        #[cfg(target_os = "windows")]
-        let iceoryx = iceoryx.cxxflag("/EHsc");
 
         let iceoryx = iceoryx
             .define("BUILD_SHARED_LIBS", "OFF")
@@ -51,11 +58,6 @@ fn main() {
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
             .env("iceoryx_posh_DIR", iceoryx_install_path)
             .define("ENABLE_ICEORYX", "YES");
-
-        #[cfg(target_os = "windows")]
-        {
-            cyclonedds = cyclonedds.define("CMAKE_CXX_STANDARD", "20");
-        }
 
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=acl");
