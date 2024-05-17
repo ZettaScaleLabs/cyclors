@@ -53,7 +53,7 @@ fn main() {
         println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
         println!("cargo:rustc-link-lib=static=iceoryx_posh");
         println!("cargo:rustc-link-lib=static=iceoryx_platform");
-
+        
         cyclonedds = cyclonedds
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
             .env("iceoryx_posh_DIR", iceoryx_install_path)
@@ -61,6 +61,9 @@ fn main() {
 
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=acl");
+
+        #[cfg(target_os = "windows")]
+        println!("cargo:rustc-link-lib=static=bcrypt");
 
         #[cfg(not(any(target_os = "windows", target_os = "macos")))]
         println!("cargo:rustc-link-lib=stdc++");
@@ -106,6 +109,8 @@ fn main() {
     println!("cargo:rustc-link-lib=Iphlpapi");
     #[cfg(target_os = "windows")]
     println!("cargo:rustc-link-lib=DbgHelp");
+    #[cfg(target_os = "windows")]
+    println!("cargo:rustc-link-lib=Bcrypt");
 
     // Build cyclocut
     let cyclocut_dir = out_dir.join("cyclocut-build");
