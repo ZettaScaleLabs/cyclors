@@ -62,9 +62,6 @@ fn main() {
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=acl");
 
-        #[cfg(target_os = "windows")]
-        println!("cargo:rustc-link-lib=static=bcrypt");
-
         #[cfg(not(any(target_os = "windows", target_os = "macos")))]
         println!("cargo:rustc-link-lib=stdc++");
 
