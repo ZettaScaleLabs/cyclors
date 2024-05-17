@@ -53,7 +53,7 @@ fn main() {
         println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
         println!("cargo:rustc-link-lib=static=iceoryx_posh");
         println!("cargo:rustc-link-lib=static=iceoryx_platform");
-        
+
         cyclonedds = cyclonedds
             .env("iceoryx_hoofs_DIR", iceoryx_install_path)
             .env("iceoryx_posh_DIR", iceoryx_install_path)
