@@ -1,12 +1,9 @@
 #include <string.h>
 
 #include <dds/dds.h>
+#include <dds/ddsc/dds_loaned_sample.h>
+#include <dds/ddsc/dds_psmx.h>
 #include <dds/ddsi/ddsi_serdata.h>
 #include <dds/ddsi/ddsi_typelib.h>
-
-#ifdef DDS_HAS_SHM
-#include <dds/ddsc/dds_loan_api.h>
-#include <dds/ddsi/ddsi_shm_transport.h>
-#endif
 
 #include <cdds/cdds_util.h>

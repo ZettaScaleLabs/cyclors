@@ -15,9 +15,9 @@
 #include <limits.h>
 #include <string.h>
 #include "cdds/cdds_util.h"
+#include "dds/ddsc/dds_psmx.h"
 #include "dds/ddsi/ddsi_radmin.h"
 #include "dds/ddsi/ddsi_serdata.h"
-
 
 struct cdds_ddsi_payload
 {
@@ -257,6 +257,54 @@ static void cdds_to_ser(const struct ddsi_serdata *serdata_common, size_t off, s
   memcpy(buf, pl->payload, pl->size);
 }
 
+static struct ddsi_serdata *cdds_from_psmx (const struct ddsi_sertype *type, dds_loaned_sample_t *loaned_sample)
+{
+  struct dds_psmx_metadata *metadata = loaned_sample->metadata;
+  CY_DEBUG_WA("==> <cdds_from_psmx> for %s -- size %zu\n", type->type_name, metadata->sample_size);
+
+  enum ddsi_serdata_kind kind = SDK_EMPTY;
+  bool is_raw = false;
+  switch (metadata->sample_state)
+  {
+    case DDS_LOANED_SAMPLE_STATE_RAW_KEY:
+      is_raw = true;
+      // fall through
+    case DDS_LOANED_SAMPLE_STATE_SERIALIZED_KEY:
+      kind = SDK_KEY;
+      break;
+    case DDS_LOANED_SAMPLE_STATE_RAW_DATA:
+      is_raw = true;
+      // fall through
+    case DDS_LOANED_SAMPLE_STATE_SERIALIZED_DATA:
+      kind = SDK_DATA;
+      break;
+    case DDS_LOANED_SAMPLE_STATE_UNITIALIZED:
+      assert (0);
+      return NULL;
+  }
+  
+  struct cdds_ddsi_payload *zp = (struct cdds_ddsi_payload *)malloc(sizeof(struct cdds_ddsi_payload));
+  ddsi_serdata_init(&zp->sd, type, kind);
+  zp->kind = kind;
+  
+  if (is_raw)
+  {
+    zp->size = metadata->sample_size;
+    zp->sd.loan = loaned_sample;
+    dds_loaned_sample_ref(zp->sd.loan);
+  }
+  else // serialized
+  {
+    zp->size = metadata->sample_size + 4;
+    zp->payload = malloc(zp->size);
+    uint16_t *tmp = (uint16_t *) zp->payload;
+    *(tmp++) = metadata->cdr_identifier;
+    *(tmp++) = metadata->cdr_options;
+    memcpy(zp->payload + 4, loaned_sample->sample_ptr, metadata->sample_size);
+  }
+  return (struct ddsi_serdata *)zp;
+}
+
 static const struct ddsi_serdata_ops cdds_serdata_ops = {
     .get_size = cdds_serdata_size,
     .eqkey = cdds_serdata_eqkey,
@@ -266,12 +314,14 @@ static const struct ddsi_serdata_ops cdds_serdata_ops = {
     .to_ser = cdds_to_ser,
     .to_ser_ref = cdds_to_ser_ref,
     .to_ser_unref = cdds_to_ser_unref,
-    .free = cdds_serdata_free};
+    .free = cdds_serdata_free,
+    .from_psmx = cdds_from_psmx};
 
 dds_entity_t cdds_create_blob_topic(dds_entity_t dp, char *topic_name, char *type_name, bool is_keyless)
 {
   CY_DEBUG("Called <cdds_create_blob_topic> \n");
   struct ddsi_sertype *st = (struct ddsi_sertype *)malloc(sizeof(struct ddsi_sertype));
-  ddsi_sertype_init(st, type_name, &cdds_sertype_ops, &cdds_serdata_ops, is_keyless);
+  uint32_t data_type_flags = (is_keyless ? DDSI_SERTYPE_FLAG_TOPICKIND_NO_KEY : 0);
+  ddsi_sertype_init_flags(st, type_name, &cdds_sertype_ops, &cdds_serdata_ops, data_type_flags);
   return dds_create_topic_sertype(dp, topic_name, &st, NULL, NULL, NULL);
 }

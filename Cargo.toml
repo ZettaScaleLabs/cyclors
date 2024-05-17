@@ -1,17 +1,17 @@
 [package]
 name = "cyclors"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["kydos <angelo@icorsaro.net>"]
 license = "Apache-2.0"
 readme = "README.md"
 keywords = ["DDS", "CycloneDDS"]
-repository = "https://github.com/kydos/cyclors"
+repository = "https://github.com/ZettaScaleLabs/cyclors"
 documentation = "https://docs.rs/cyclors"
 description = """
 Low-level API for the native CycloneDDS bindings (libddsc-sys).
 """
 categories = ["api-bindings"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "cyclors"
