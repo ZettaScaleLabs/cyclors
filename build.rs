@@ -106,6 +106,8 @@ fn main() {
     println!("cargo:rustc-link-lib=Iphlpapi");
     #[cfg(target_os = "windows")]
     println!("cargo:rustc-link-lib=DbgHelp");
+    #[cfg(target_os = "windows")]
+    println!("cargo:rustc-link-lib=Bcrypt");
 
     // Build cyclocut
     let cyclocut_dir = out_dir.join("cyclocut-build");
