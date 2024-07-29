@@ -42,6 +42,7 @@ pub mod qos;
 
 // deactivate clippy on bindgen generated code
 #[allow(clippy::all)]
+#[allow(dead_code)]
 mod bindings {
     include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 }
