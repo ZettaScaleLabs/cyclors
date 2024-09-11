@@ -522,12 +522,13 @@ unsafe fn user_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
     let mut sz: usize = 0;
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_userdata(qos, &mut value, &mut sz) {
-        // Cyclone DDS returns a copy of the value so okay to take ownership
-        to_option(Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz,
-            sz,
-        ))
+        let vec = if value.is_null() {
+            Vec::with_capacity(0)
+        } else {
+            // Cyclone DDS returns a copy of the value so okay to take ownership
+            Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz)
+        };
+        to_option(vec)
     } else {
         None
     }
@@ -545,12 +546,13 @@ unsafe fn topic_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
     let mut sz: usize = 0;
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_topicdata(qos, &mut value, &mut sz) {
-        // Cyclone DDS returns a copy of the value so okay to take ownership
-        to_option(Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz,
-            sz,
-        ))
+        let vec = if value.is_null() {
+            Vec::with_capacity(0)
+        } else {
+            // Cyclone DDS returns a copy of the value so okay to take ownership
+            Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz)
+        };
+        to_option(vec)
     } else {
         None
     }
@@ -568,12 +570,13 @@ unsafe fn group_data_from_qos_native(qos: *const dds_qos_t) -> Option<Vec<u8>> {
     let mut sz: usize = 0;
     let mut value: *mut ::std::os::raw::c_void = std::ptr::null_mut();
     if dds_qget_groupdata(qos, &mut value, &mut sz) {
-        // Cyclone DDS returns a copy of the value so okay to take ownership
-        to_option(Vec::from_raw_parts(
-            value as *mut ::std::os::raw::c_uchar,
-            sz,
-            sz,
-        ))
+        let vec = if value.is_null() {
+            Vec::with_capacity(0)
+        } else {
+            // Cyclone DDS returns a copy of the value so okay to take ownership
+            Vec::from_raw_parts(value as *mut ::std::os::raw::c_uchar, sz, sz)
+        };
+        to_option(vec)
     } else {
         None
     }
