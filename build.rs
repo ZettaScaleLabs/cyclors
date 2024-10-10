@@ -1,7 +1,11 @@
 extern crate bindgen;
 
+use std::collections::HashSet;
 use std::env;
-use std::path::PathBuf;
+use std::fs::File;
+use std::io::{LineWriter, Write};
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -143,6 +147,56 @@ fn main() {
         .clang_arg(format!("-I{}", cyclocut_include.to_str().unwrap()))
         .generate_comments(false);
 
+    // Prefix symbols in Iceoryx, Cyclone DDS and Cyclocut libraries to ensure uniqueness
+    #[cfg(target_os = "linux")]
+    {
+        // Prefix = cyclors_<version>_
+        let mut prefix = env::var("CARGO_PKG_VERSION").unwrap().replace(".", "_");
+        prefix.insert_str(0, "cyclors_");
+        prefix.push('_');
+        println!("Library prefix: {}", prefix);
+
+        let mut symbols = HashSet::new();
+
+        let cyclone_symbols = get_defined_symbols(&cyclonedds_lib, "libddsc.a")
+            .expect("Failed to get symbols from libddsc.a!");
+        symbols.extend(cyclone_symbols);
+        prefix_symbols(&cyclonedds_lib, "libddsc.a", &prefix, &symbols);
+
+        let cyclocut_symbols = get_defined_symbols(&cyclocut_lib, "libcdds-util.a")
+            .expect("Failed to get symbols from libcdds-util.a!");
+        symbols.extend(cyclocut_symbols);
+        prefix_symbols(&cyclocut_lib, "libcdds-util.a", &prefix, &symbols);
+
+        #[derive(Debug)]
+        struct PrefixLinkNameCallback {
+            prefix: String,
+            symbols: HashSet<String>,
+        }
+
+        impl bindgen::callbacks::ParseCallbacks for PrefixLinkNameCallback {
+            fn generated_link_name_override(
+                &self,
+                item_info: bindgen::callbacks::ItemInfo<'_>,
+            ) -> Option<String> {
+                match self.symbols.contains(item_info.name) {
+                    true => {
+                        let mut prefix = self.prefix.clone();
+                        prefix.push_str(item_info.name);
+                        //println!("bindgen: {prefix}");
+                        Some(prefix)
+                    }
+                    false => None,
+                }
+            }
+        }
+
+        bindings = bindings.parse_callbacks(Box::new(PrefixLinkNameCallback {
+            prefix: prefix.clone(),
+            symbols: symbols.clone(),
+        }));
+    }
+
     // Add *IMAGE_TLS_DIRECTORY* to blocklist on Windows due to
     // https://github.com/rust-lang/rust-bindgen/issues/2179
     #[cfg(target_os = "windows")]
@@ -156,4 +210,64 @@ fn main() {
     bindings
         .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
+}
+
+fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>, String> {
+    let lib_path = lib_dir.to_path_buf().join(lib_name);
+    println!(
+        "Getting defined symbols from {}",
+        lib_path.to_str().unwrap()
+    );
+    let output = Command::new("nm")
+        .arg("-U")
+        .arg("-A")
+        .arg(lib_path)
+        .output()
+        .expect("Failed to run nm");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    match stderr.is_empty() {
+        true => {
+            let mut result: HashSet<String> = HashSet::new();
+            for line in stdout.lines() {
+                let tokens: Vec<&str> = line.split_whitespace().collect();
+                let symbol = *tokens.last().unwrap();
+                result.insert(String::from(symbol));
+            }
+            Ok(result)
+        }
+        false => Err(String::from(stderr)),
+    }
+}
+
+fn prefix_symbols(lib_dir: &Path, lib_name: &str, prefix: &str, symbols: &HashSet<String>) {
+    let mut objcopy_file_name = lib_name.to_owned();
+    objcopy_file_name.push_str(".objcopy");
+
+    let lib_file_path = lib_dir.to_path_buf().join(lib_name);
+    let symbol_file_path = lib_dir.to_path_buf().join(objcopy_file_name);
+    let symbol_file = File::create(symbol_file_path.clone()).expect("Failed to create symbol file");
+    let mut symbol_file = LineWriter::new(symbol_file);
+
+    for symbol in symbols {
+        let mut symbol_arg = symbol.clone();
+        symbol_arg.push(' ');
+        symbol_arg.push_str(prefix);
+        symbol_arg.push_str(symbol);
+        symbol_arg.push('\n');
+        symbol_file
+            .write_all(symbol_arg.as_bytes())
+            .expect("Failed to write symbol file");
+    }
+    symbol_file.flush().expect("Failed to flush symbol file");
+
+    let arg = format!("--redefine-syms={}", symbol_file_path.to_str().unwrap());
+
+    Command::new("objcopy")
+        .arg(arg)
+        .arg(lib_file_path)
+        .output()
+        .expect("Failed to run objcopy");
 }
