@@ -50,9 +50,11 @@ pub use bindings::*;
 /* Additional wrapper functions for select exported inline functions */
 
 extern "C" {
+    #[link_name = "cyclors_0_2_1_ddsi_serdata_size"]
     pub fn ddsi_serdata_size(d: *const ddsi_serdata) -> u32;
 }
 extern "C" {
+    #[link_name = "cyclors_0_2_1_ddsi_serdata_to_ser_ref"]
     pub fn ddsi_serdata_to_ser_ref(
         d: *const ddsi_serdata,
         off: usize,
@@ -61,12 +63,15 @@ extern "C" {
     ) -> *mut ddsi_serdata;
 }
 extern "C" {
+    #[link_name = "cyclors_0_2_1_ddsi_serdata_unref"]
     pub fn ddsi_serdata_unref(serdata: *mut ddsi_serdata);
 }
 extern "C" {
+    #[link_name = "cyclors_0_2_1_ddsi_serdata_to_ser_unref"]
     pub fn ddsi_serdata_to_ser_unref(d: *mut ddsi_serdata, ref_: *const ddsrt_iovec_t);
 }
 extern "C" {
+    #[link_name = "cyclors_0_2_1_ddsi_serdata_from_ser_iov"]
     pub fn ddsi_serdata_from_ser_iov(
         type_: *const ddsi_sertype,
         kind: ddsi_serdata_kind,
@@ -76,6 +81,7 @@ extern "C" {
     ) -> *mut ddsi_serdata;
 }
 extern "C" {
+    #[link_name = "cyclors_0_2_1_ddsi_serdata_from_sample"]
     pub fn ddsi_serdata_from_sample(
         type_: *const ddsi_sertype,
         kind: ddsi_serdata_kind,
