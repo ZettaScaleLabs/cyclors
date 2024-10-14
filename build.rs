@@ -215,8 +215,8 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
         lib_path.to_str().unwrap()
     );
     let output = Command::new("nm")
-        .arg("-U")
-        .arg("-A")
+        .arg("--defined-only")
+        .arg("--print-file-name")
         .arg(lib_path)
         .output()
         .expect("Failed to run nm");
