@@ -1,11 +1,11 @@
 extern crate bindgen;
 
 use std::collections::HashSet;
-use std::env;
 use std::fs::File;
 use std::io::{LineWriter, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::{env, fs};
 
 fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -147,11 +147,14 @@ fn main() {
         .clang_arg(format!("-I{}", cyclocut_include.to_str().unwrap()))
         .generate_comments(false);
 
+    #[allow(unused_assignments)]
+    let mut prefix = String::from("");
+
     // Prefix symbols in Iceoryx, Cyclone DDS and Cyclocut libraries to ensure uniqueness
     #[cfg(target_os = "linux")]
     {
         // Prefix = cyclors_<version>_
-        let mut prefix = env::var("CARGO_PKG_VERSION").unwrap().replace(".", "_");
+        prefix = env::var("CARGO_PKG_VERSION").unwrap().replace(".", "_");
         prefix.insert_str(0, "cyclors_");
         prefix.push('_');
         println!("Library prefix: {}", prefix);
@@ -203,6 +206,9 @@ fn main() {
     let bindings = bindings
         .clang_arg("-Wno-invalid-token-paste")
         .blocklist_type("^(.*IMAGE_TLS_DIRECTORY.*)$");
+
+    // Set link name prefix on additional wrapStringper functions
+    generate_template_src(&prefix);
 
     // Generate bindings
     let bindings = bindings.generate().expect("Unable to generate bindings");
@@ -270,4 +276,21 @@ fn prefix_symbols(lib_dir: &Path, lib_name: &str, prefix: &str, symbols: &HashSe
         .arg(lib_file_path)
         .output()
         .expect("Failed to run objcopy");
+}
+
+fn generate_template_src(prefix: &str) {
+    let src_path = Path::new("src/functions.template");
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"));
+    let dst_path = out_dir.join("functions.rs");
+
+    let mut contents = fs::read_to_string(src_path).expect("Failed to read the source file.");
+    contents = contents.replace("<prefix>", prefix);
+
+    let mut file =
+        File::create(&dst_path).expect("Failed to open the destination file for writing!");
+    file.write_all(contents.as_bytes())
+        .expect("Failed to write the modified content to the destination file.");
+
+    println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=src/functions.template");
 }
