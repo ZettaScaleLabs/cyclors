@@ -153,7 +153,7 @@ fn main() {
     #[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
     {
         // Prefix = cyclors_<version>_
-        prefix = env::var("CARGO_PKG_VERSION").unwrap().replace(".", "_");
+        prefix = env::var("CARGO_PKG_VERSION").unwrap().replace('.', "_");
         prefix.insert_str(0, "cyclors_");
         prefix.push('_');
 
