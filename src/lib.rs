@@ -48,38 +48,5 @@ mod bindings {
 }
 pub use bindings::*;
 
-/* Additional wrapper functions for select exported inline functions */
-
-extern "C" {
-    pub fn ddsi_serdata_size(d: *const ddsi_serdata) -> u32;
-}
-extern "C" {
-    pub fn ddsi_serdata_to_ser_ref(
-        d: *const ddsi_serdata,
-        off: usize,
-        sz: usize,
-        ref_: *mut ddsrt_iovec_t,
-    ) -> *mut ddsi_serdata;
-}
-extern "C" {
-    pub fn ddsi_serdata_unref(serdata: *mut ddsi_serdata);
-}
-extern "C" {
-    pub fn ddsi_serdata_to_ser_unref(d: *mut ddsi_serdata, ref_: *const ddsrt_iovec_t);
-}
-extern "C" {
-    pub fn ddsi_serdata_from_ser_iov(
-        type_: *const ddsi_sertype,
-        kind: ddsi_serdata_kind,
-        niov: ddsrt_msg_iovlen_t,
-        iov: *const ddsrt_iovec_t,
-        size: usize,
-    ) -> *mut ddsi_serdata;
-}
-extern "C" {
-    pub fn ddsi_serdata_from_sample(
-        type_: *const ddsi_sertype,
-        kind: ddsi_serdata_kind,
-        sample: *const ::std::os::raw::c_void,
-    ) -> *mut ddsi_serdata;
-}
+// Include the generated additional wrapper functions from OUT_DIR
+include!(concat!(env!("OUT_DIR"), "/functions.rs"));
