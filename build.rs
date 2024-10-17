@@ -154,11 +154,7 @@ fn main() {
     let mut prefix = String::from("");
 
     // Prefix symbols in Cyclone DDS and Cyclocut libraries to ensure uniqueness
-    #[cfg(all(
-        target_os = "linux",
-        any(target_arch = "x86", target_arch = "x86_64"),
-        not(feature = "iceoryx")
-    ))]
+    #[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
     {
         // Prefix = cyclors_<version>_
         prefix = env::var("CARGO_PKG_VERSION").unwrap().replace('.', "_");
@@ -223,11 +219,7 @@ fn main() {
         .expect("Couldn't write bindings!");
 }
 
-#[cfg(all(
-    target_os = "linux",
-    any(target_arch = "x86", target_arch = "x86_64"),
-    not(feature = "iceoryx")
-))]
+#[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
 fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>, String> {
     let lib_path = lib_dir.to_path_buf().join(lib_name);
 
@@ -263,11 +255,7 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
     }
 }
 
-#[cfg(all(
-    target_os = "linux",
-    any(target_arch = "x86", target_arch = "x86_64"),
-    not(feature = "iceoryx")
-))]
+#[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
 fn prefix_symbols(
     lib_dir: &Path,
     lib_name: &str,
