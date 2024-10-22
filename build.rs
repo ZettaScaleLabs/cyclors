@@ -156,7 +156,7 @@ fn main() {
     // Prefix symbols in Cyclone DDS and Cyclocut libraries to ensure uniqueness
     #[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
     {
-        // Prefix = cyclors_<version>_
+        // Prefix = cyclors_<version>
         prefix = env::var("CARGO_PKG_VERSION").unwrap().replace('.', "_");
         prefix.insert_str(0, "cyclors_");
         prefix.push('_');
@@ -292,11 +292,14 @@ fn prefix_symbols(
                     lib_name
                 ));
             }
-            let arg = format!("--redefine-syms={}", symbol_file_path.to_str().unwrap());
-            match Command::new("objcopy").arg(arg).arg(lib_file_path).output() {
-                Ok(_) => Ok(()),
-                Err(_) => Err(format!("Failed to run objcopy on library {}", lib_name)),
-            }
+
+            let mut objcopy = cmake::Config::new("objcopy");
+            objcopy
+                .build_target("all")
+                .define("LIB_PATH", lib_file_path.clone())
+                .define("SYMBOL_FILE_PATH", symbol_file_path.clone())
+                .build();
+            Ok(())
         }
         Err(_) => Err(format!(
             "Failed to create symbol file for library {}",
