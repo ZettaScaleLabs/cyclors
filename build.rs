@@ -221,37 +221,42 @@ fn main() {
 
 #[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
 fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>, String> {
+    use std::io::{BufRead, BufReader};
+
     let lib_path = lib_dir.to_path_buf().join(lib_name);
+    let mut nm_file_name = lib_name.to_owned();
+    nm_file_name.push_str(".nm");
+    let symbol_file_path = lib_dir.to_path_buf().join(nm_file_name);
 
-    let rc = Command::new("nm")
-        .arg("--defined-only")
-        .arg("--print-file-name")
-        .arg(lib_path)
-        .output();
+    let mut nm = cmake::Config::new("nm");
+    nm.build_target("all")
+        .define("LIB_PATH", lib_path.clone())
+        .build();
 
-    match rc {
-        Ok(output) => {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            let stderr = String::from_utf8_lossy(&output.stderr);
+    match File::open(symbol_file_path.clone()) {
+        Ok(symbol_file) => {
+            let reader = BufReader::new(symbol_file);
 
-            match stderr.is_empty() {
-                true => {
-                    let mut result: HashSet<String> = HashSet::new();
-                    for line in stdout.lines() {
+            let mut result: HashSet<String> = HashSet::new();
+            for line in reader.lines() {
+                match line {
+                    Ok(line) => {
                         let tokens: Vec<&str> = line.split_whitespace().collect();
                         let symbol = *tokens.last().unwrap();
                         result.insert(String::from(symbol));
                     }
-                    Ok(result)
+                    Err(_) => return Err(format!("Failed to run nm on library {}", lib_name)),
                 }
-                false => Err(format!(
-                    "Failed to run nm on library {} (stderr: {})",
-                    lib_name,
-                    String::from(stderr)
-                )),
             }
+            Ok(result)
         }
-        Err(_) => Err(format!("Failed to run nm on library {}", lib_name)),
+        Err(_) => {
+            println!(
+                "nm file open problem: {}",
+                symbol_file_path.to_str().unwrap()
+            );
+            Err(format!("Failed to run nm on library {}", lib_name))
+        }
     }
 }
 
