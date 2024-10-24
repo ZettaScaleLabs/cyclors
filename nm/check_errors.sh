@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ ! -s $1 ]; then
     echo 'Command succeeded with no stderr output.'
