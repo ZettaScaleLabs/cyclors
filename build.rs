@@ -300,6 +300,7 @@ fn replace_in_file(file_path: &Path, from: &str, to: &str) -> std::io::Result<()
     Ok(())
 }
 
+#[allow(unused_variables)]
 fn get_library_name(lib_name: &str) -> Option<String> {
     #[cfg(target_os = "linux")]
     {
