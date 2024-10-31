@@ -15,11 +15,27 @@ fn main() {
     let mut dir_builder = std::fs::DirBuilder::new();
     dir_builder.recursive(true);
 
+    // Symbol Prefix to add to C symbols
+    #[allow(unused)]
+    let mut prefix = String::new();
+    #[cfg(all(
+        any(target_os = "linux", target_os = "windows"),
+        not(feature = "iceoryx")
+    ))]
+    {
+        // Prefix = cyclors_<version>
+        prefix = env::var("CARGO_PKG_VERSION").unwrap().replace('.', "_");
+        prefix.insert_str(0, "cyclors_");
+        prefix.push('_');
+    }
+
+    let cyclonedds_src_dir = prepare_cyclonedds_src("cyclonedds", &out_dir, &prefix);
+
     // Create Cyclone DDS build directory and initial config
     let cyclonedds_dir = out_dir.join("cyclonedds-build");
     dir_builder.create(&cyclonedds_dir).unwrap();
 
-    let mut cyclonedds = cmake::Config::new("cyclonedds");
+    let mut cyclonedds = cmake::Config::new(cyclonedds_src_dir);
     let mut cyclonedds = cyclonedds.out_dir(cyclonedds_dir);
 
     // Create initial bindings builder
@@ -150,28 +166,21 @@ fn main() {
         .clang_arg(format!("-I{}", cyclocut_include.to_str().unwrap()))
         .generate_comments(false);
 
-    #[allow(unused)]
-    let mut prefix = String::from("");
-
     // Prefix symbols in Cyclone DDS and Cyclocut libraries to ensure uniqueness
-    #[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
-    {
-        // Prefix = cyclors_<version>
-        prefix = env::var("CARGO_PKG_VERSION").unwrap().replace('.', "_");
-        prefix.insert_str(0, "cyclors_");
-        prefix.push('_');
-
+    if !prefix.is_empty() {
         let mut symbols = HashSet::new();
+        let ddsc_lib_name = get_library_name("ddsc").unwrap();
+        let cdds_lib_name = get_library_name("cdds-util").unwrap();
 
-        let cyclone_symbols = get_defined_symbols(&cyclonedds_lib, "libddsc.a")
-            .expect("Failed to get symbols from libddsc.a!");
+        let cyclone_symbols = get_defined_symbols(&cyclonedds_lib, &ddsc_lib_name)
+            .expect("Failed to get symbols from ddsc library!");
         symbols.extend(cyclone_symbols);
-        prefix_symbols(&cyclonedds_lib, "libddsc.a", &prefix, &symbols).unwrap();
+        prefix_symbols(&cyclonedds_lib, &ddsc_lib_name, &prefix, &symbols).unwrap();
 
-        let cyclocut_symbols = get_defined_symbols(&cyclocut_lib, "libcdds-util.a")
-            .expect("Failed to get symbols from libcdds-util.a!");
+        let cyclocut_symbols = get_defined_symbols(&cyclocut_lib, &cdds_lib_name)
+            .expect("Failed to get symbols from cdds-util library!");
         symbols.extend(cyclocut_symbols);
-        prefix_symbols(&cyclocut_lib, "libcdds-util.a", &prefix, &symbols).unwrap();
+        prefix_symbols(&cyclocut_lib, &cdds_lib_name, &prefix, &symbols).unwrap();
 
         #[derive(Debug)]
         struct PrefixLinkNameCallback {
@@ -219,7 +228,96 @@ fn main() {
         .expect("Couldn't write bindings!");
 }
 
-#[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
+#[allow(unused_variables)]
+fn prepare_cyclonedds_src(src_dir: &str, out_dir: &Path, prefix: &str) -> PathBuf {
+    #[cfg(target_os = "windows")]
+    if !prefix.is_empty() {
+        let mut dst_dir = src_dir.to_string();
+        dst_dir.push_str("-src");
+        let dst_dir = out_dir.join(dst_dir);
+
+        // Delete copied source directory if it already exists
+        if dst_dir.exists() {
+            fs::remove_dir_all(dst_dir.clone()).unwrap();
+        }
+        copy_dir_recursive(&PathBuf::from(src_dir), &dst_dir).unwrap();
+
+        // Prefix tls_callback_func in cyclonedds-src/src/ddsrt/src/cdtors.c
+        let mut prefixed_func = prefix.to_string();
+        prefixed_func.push_str("tls_callback_func");
+        let cdtors = dst_dir
+            .join("src")
+            .join("ddsrt")
+            .join("src")
+            .join("cdtors.c");
+        replace_in_file(&cdtors, "tls_callback_func", &prefixed_func).unwrap();
+
+        return dst_dir;
+    }
+    PathBuf::from(src_dir)
+}
+
+#[allow(unused)]
+fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<()> {
+    println!(
+        "src = {}, dir = {}",
+        src.to_str().unwrap(),
+        dst.to_str().unwrap()
+    );
+    if !dst.exists() {
+        fs::create_dir_all(dst)?;
+    }
+
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let path = entry.path();
+        let dest_path = dst.join(entry.file_name());
+
+        if path.is_dir() {
+            copy_dir_recursive(&path, &dest_path)?;
+        } else {
+            fs::copy(&path, &dest_path)?;
+        }
+    }
+    Ok(())
+}
+
+#[allow(unused)]
+fn replace_in_file(file_path: &Path, from: &str, to: &str) -> std::io::Result<()> {
+    // Read the file content into a string
+    let content = fs::read_to_string(file_path)?;
+
+    // Replace all occurrences of `from` with `to`
+    let new_content = content.replace(from, to);
+
+    // Write the modified content back to the file
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .truncate(true) // Clear the file before writing
+        .open(file_path)?;
+
+    file.write_all(new_content.as_bytes())?;
+    Ok(())
+}
+
+fn get_library_name(lib_name: &str) -> Option<String> {
+    #[cfg(target_os = "linux")]
+    {
+        let mut file_name = String::from("lib");
+        file_name.push_str(lib_name);
+        file_name.push_str(".a");
+        Some(file_name)
+    }
+    #[cfg(target_os = "windows")]
+    {
+        let mut file_name = String::from(lib_name);
+        file_name.push_str(".lib");
+        Some(file_name)
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    None
+}
+
 fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>, String> {
     use std::io::{BufRead, BufReader};
 
@@ -229,7 +327,7 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
     let symbol_file_path = lib_dir.to_path_buf().join(nm_file_name);
 
     let mut nm = cmake::Config::new("nm");
-    nm.build_target("all")
+    nm.build_target("read_symbols")
         .define("LIB_PATH", lib_path.clone())
         .build();
 
@@ -243,6 +341,11 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
                     Ok(line) => {
                         let tokens: Vec<&str> = line.split_whitespace().collect();
                         let symbol = *tokens.last().unwrap();
+                        #[cfg(target_os = "windows")]
+                        if !symbol.ends_with("tls_callback_func") {
+                            result.insert(String::from(symbol));
+                        }
+                        #[cfg(not(target_os = "windows"))]
                         result.insert(String::from(symbol));
                     }
                     Err(_) => return Err(format!("Failed to run nm on library {}", lib_name)),
@@ -260,7 +363,6 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
     }
 }
 
-#[cfg(all(target_os = "linux", not(feature = "iceoryx")))]
 fn prefix_symbols(
     lib_dir: &Path,
     lib_name: &str,
@@ -300,7 +402,7 @@ fn prefix_symbols(
 
             let mut objcopy = cmake::Config::new("objcopy");
             objcopy
-                .build_target("all")
+                .build_target("mangle_library")
                 .define("LIB_PATH", lib_file_path.clone())
                 .define("SYMBOL_FILE_PATH", symbol_file_path.clone())
                 .build();

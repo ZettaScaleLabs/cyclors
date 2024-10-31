@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(Objcopy)
 
-# Include the CMakeFindBinUtils module to find objcopy
-include(CMakeFindBinUtils)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    # Include the CMakeFindBinUtils module to find objcopy
+    include(CMakeFindBinUtils)
+else()
+    find_program(CMAKE_OBJCOPY llvm-objcopy)
+endif()
 
 # Ensure objcopy is available
 if(NOT CMAKE_OBJCOPY)

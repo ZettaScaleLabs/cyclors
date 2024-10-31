@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(NM)
 
-# Include the CMakeFindBinUtils module to find nm
-include(CMakeFindBinUtils)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    # Include the CMakeFindBinUtils module to find nm
+    include(CMakeFindBinUtils)
+else()
+    find_program(CMAKE_NM llvm-nm)
+endif()
 
 # Ensure nm is available
 if(NOT CMAKE_NM)
