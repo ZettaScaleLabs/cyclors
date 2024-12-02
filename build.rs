@@ -19,7 +19,7 @@ fn main() {
     #[allow(unused)]
     let mut prefix = String::new();
     #[cfg(all(
-        any(target_os = "linux", target_os = "windows"),
+        any(target_os = "linux", target_os = "windows", target_os = "macos"),
         not(feature = "iceoryx")
     ))]
     {
@@ -302,7 +302,7 @@ fn replace_in_file(file_path: &Path, from: &str, to: &str) -> std::io::Result<()
 
 #[allow(unused_variables)]
 fn get_library_name(lib_name: &str) -> Option<String> {
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         let mut file_name = String::from("lib");
         file_name.push_str(lib_name);
@@ -315,7 +315,7 @@ fn get_library_name(lib_name: &str) -> Option<String> {
         file_name.push_str(".lib");
         Some(file_name)
     }
-    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
     None
 }
 
