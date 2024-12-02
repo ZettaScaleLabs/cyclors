@@ -28,6 +28,7 @@ jobs:
         if: startsWith(matrix.os,'macos')
         run: | brew install llvm
                echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH' >> $GITHUB_ENV
+               echo $GITHUB_ENV
       - name: Install Rust toolchain
         run: |
           rustup show
