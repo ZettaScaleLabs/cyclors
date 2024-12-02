@@ -24,6 +24,9 @@ jobs:
       - name: Install ACL
         if: startsWith(matrix.os,'ubuntu')
         run: sudo apt-get -y install acl-dev
+      - name: Install LLVM toolchain
+        if: startsWith(matrix.os,'macos')
+        run: brew install llvm
       - name: Install Rust toolchain
         run: |
           rustup show
