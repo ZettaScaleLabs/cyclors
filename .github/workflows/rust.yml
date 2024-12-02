@@ -26,8 +26,9 @@ jobs:
         run: sudo apt-get -y install acl-dev
       - name: Install LLVM toolchain
         if: startsWith(matrix.os,'macos')
-        run: | brew install llvm
-               echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH' >> $GITHUB_ENV
+        run: |
+          brew install llvm
+          echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH' >> $GITHUB_ENV
       - name: Install Rust toolchain
         run: |
           rustup show
