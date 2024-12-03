@@ -28,6 +28,7 @@ jobs:
         if: startsWith(matrix.os,'macos')
         run: |
           brew install llvm
+          ls /opt/homebrew/opt/llvm/bin
           echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH' >> $GITHUB_ENV
       - name: Check Environment
         run: echo $GITHUB_ENV
