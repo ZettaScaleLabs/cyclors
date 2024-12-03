@@ -5,7 +5,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     # Include the CMakeFindBinUtils module to find objcopy
     include(CMakeFindBinUtils)
 else()
-    find_program(CMAKE_OBJCOPY llvm-objcopy)
+    find_program(CMAKE_OBJCOPY llvm-objcopy HINTS /opt/homebrew/opt/llvm/bin)
 endif()
 
 # Ensure objcopy is available
