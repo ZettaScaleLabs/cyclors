@@ -382,9 +382,22 @@ fn prefix_symbols(
 
             for symbol in symbols {
                 let mut symbol_arg = symbol.clone();
-                symbol_arg.push(' ');
-                symbol_arg.push_str(prefix);
-                symbol_arg.push_str(symbol);
+
+                #[cfg(target_os = "macos")]
+                {
+                    let mut symbol_stripped = symbol.clone();
+                    symbol_stripped.remove(0);
+                    symbol_arg.push(' ');
+                    symbol_arg.push('_');
+                    symbol_arg.push_str(prefix);
+                    symbol_arg.push_str(&symbol_stripped);
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    symbol_arg.push(' ');
+                    symbol_arg.push_str(prefix);
+                    symbol_arg.push_str(symbol);
+                }
                 symbol_arg.push('\n');
                 if symbol_file.write_all(symbol_arg.as_bytes()).is_err() {
                     return Err(format!(
