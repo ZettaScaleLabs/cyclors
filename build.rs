@@ -193,7 +193,11 @@ fn main() {
                 &self,
                 item_info: bindgen::callbacks::ItemInfo<'_>,
             ) -> Option<String> {
-                match self.symbols.contains(item_info.name) {
+                let mut item = String::from("");
+                #[cfg(target_os = "macos")]
+                item.push_str("_");
+                item.push_str(item_info.name);
+                match self.symbols.contains(&item) {
                     true => {
                         let mut prefix = self.prefix.clone();
                         prefix.push_str(item_info.name);
