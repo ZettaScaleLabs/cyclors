@@ -195,7 +195,7 @@ fn main() {
             ) -> Option<String> {
                 let mut item = String::from("");
                 #[cfg(target_os = "macos")]
-                item.push_str('_');
+                item.push('_');
                 item.push_str(item_info.name);
                 match self.symbols.contains(&item) {
                     true => {
