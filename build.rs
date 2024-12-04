@@ -339,6 +339,12 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
         .define("LIB_PATH", lib_path.clone())
         .build();
 
+        // Check for unexpected errors in stderr.txt
+        let mut stderr_file_name = lib_name.to_owned();
+        stderr_file_name.push_str(".stderr");
+        let stderr_file_path = lib_dir.to_path_buf().join(stderr_file_name);
+        check_nm_stderr(&stderr_file_path).unwrap();
+
     match File::open(symbol_file_path.clone()) {
         Ok(symbol_file) => {
             let reader = BufReader::new(symbol_file);
@@ -369,6 +375,30 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
             Err(format!("Failed to run nm on library {}", lib_name))
         }
     }
+}
+
+fn check_nm_stderr(stderr: &Path) -> Result<(), String> {
+    match File::open(stderr) {
+        Ok(file) => {
+            let reader = BufReader::new(file);
+
+            for line in reader.lines() {
+                match line {
+                    Ok(line) => {
+                        // Some object files within the library may report no symbols - this is okay
+                        if !line.ends_with(": no symbols") {
+                            return Err(format!("nm completed with errors - see {} for details", stderr.to_str().unwrap()));
+                        }
+                    }
+                    Err(_) => return Err(format!("Failed to read nm stderr file: {}", stderr.to_str().unwrap())),
+                }
+            }
+        }
+        Err(_) => {
+            return Err(format!("Failed to open nm stderr file: {}", stderr.to_str().unwrap()));
+        }
+    }
+    Ok(())
 }
 
 fn prefix_symbols(
