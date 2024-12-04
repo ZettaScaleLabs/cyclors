@@ -199,7 +199,10 @@ fn main() {
                 item.push_str(item_info.name);
                 match self.symbols.contains(&item) {
                     true => {
-                        let mut prefix = self.prefix.clone();
+                        let mut prefix = String::from("");
+                        #[cfg(target_os = "macos")]
+                        prefix.push('_');
+                        prefix.push_str(&self.prefix);
                         prefix.push_str(item_info.name);
                         Some(prefix)
                     }
