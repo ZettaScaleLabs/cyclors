@@ -4,7 +4,7 @@ extern crate bindgen;
 use std::collections::HashSet;
 use std::fs::File;
 #[allow(unused_imports)]
-use std::io::{BufReader, LineWriter, Write};
+use std::io::{BufRead, BufReader, LineWriter, Write};
 use std::path::{Path, PathBuf};
 #[allow(unused_imports)]
 use std::process::Command;
@@ -327,8 +327,6 @@ fn get_library_name(lib_name: &str) -> Option<String> {
 }
 
 fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>, String> {
-    use std::io::BufRead;
-
     let lib_path = lib_dir.to_path_buf().join(lib_name);
     let mut nm_file_name = lib_name.to_owned();
     nm_file_name.push_str(".nm");
