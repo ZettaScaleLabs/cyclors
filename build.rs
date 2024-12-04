@@ -4,7 +4,7 @@ extern crate bindgen;
 use std::collections::HashSet;
 use std::fs::File;
 #[allow(unused_imports)]
-use std::io::{LineWriter, Write};
+use std::io::{BufRead, BufReader, LineWriter, Write};
 use std::path::{Path, PathBuf};
 #[allow(unused_imports)]
 use std::process::Command;
@@ -19,7 +19,7 @@ fn main() {
     #[allow(unused)]
     let mut prefix = String::new();
     #[cfg(all(
-        any(target_os = "linux", target_os = "windows"),
+        any(target_os = "linux", target_os = "windows", target_os = "macos"),
         not(feature = "iceoryx")
     ))]
     {
@@ -191,9 +191,16 @@ fn main() {
                 &self,
                 item_info: bindgen::callbacks::ItemInfo<'_>,
             ) -> Option<String> {
-                match self.symbols.contains(item_info.name) {
+                let mut item = String::from("");
+                #[cfg(target_os = "macos")]
+                item.push('_');
+                item.push_str(item_info.name);
+                match self.symbols.contains(&item) {
                     true => {
-                        let mut prefix = self.prefix.clone();
+                        let mut prefix = String::from("");
+                        #[cfg(target_os = "macos")]
+                        prefix.push('_');
+                        prefix.push_str(&self.prefix);
                         prefix.push_str(item_info.name);
                         Some(prefix)
                     }
@@ -300,7 +307,7 @@ fn replace_in_file(file_path: &Path, from: &str, to: &str) -> std::io::Result<()
 
 #[allow(unused_variables)]
 fn get_library_name(lib_name: &str) -> Option<String> {
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         let mut file_name = String::from("lib");
         file_name.push_str(lib_name);
@@ -313,13 +320,11 @@ fn get_library_name(lib_name: &str) -> Option<String> {
         file_name.push_str(".lib");
         Some(file_name)
     }
-    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
     None
 }
 
 fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>, String> {
-    use std::io::{BufRead, BufReader};
-
     let lib_path = lib_dir.to_path_buf().join(lib_name);
     let mut nm_file_name = lib_name.to_owned();
     nm_file_name.push_str(".nm");
@@ -329,6 +334,12 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
     nm.build_target("read_symbols")
         .define("LIB_PATH", lib_path.clone())
         .build();
+
+    // Check for unexpected errors in stderr.txt
+    let mut stderr_file_name = lib_name.to_owned();
+    stderr_file_name.push_str(".stderr");
+    let stderr_file_path = lib_dir.to_path_buf().join(stderr_file_name);
+    check_nm_stderr(&stderr_file_path).unwrap();
 
     match File::open(symbol_file_path.clone()) {
         Ok(symbol_file) => {
@@ -362,6 +373,41 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
     }
 }
 
+fn check_nm_stderr(stderr: &Path) -> Result<(), String> {
+    match File::open(stderr) {
+        Ok(file) => {
+            let reader = BufReader::new(file);
+
+            for line in reader.lines() {
+                match line {
+                    Ok(line) => {
+                        // Some object files within the library may report no symbols - this is okay
+                        if !line.ends_with(": no symbols") {
+                            return Err(format!(
+                                "nm completed with errors - see {} for details",
+                                stderr.to_str().unwrap()
+                            ));
+                        }
+                    }
+                    Err(_) => {
+                        return Err(format!(
+                            "Failed to read nm stderr file: {}",
+                            stderr.to_str().unwrap()
+                        ))
+                    }
+                }
+            }
+        }
+        Err(_) => {
+            return Err(format!(
+                "Failed to open nm stderr file: {}",
+                stderr.to_str().unwrap()
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn prefix_symbols(
     lib_dir: &Path,
     lib_name: &str,
@@ -380,9 +426,22 @@ fn prefix_symbols(
 
             for symbol in symbols {
                 let mut symbol_arg = symbol.clone();
-                symbol_arg.push(' ');
-                symbol_arg.push_str(prefix);
-                symbol_arg.push_str(symbol);
+
+                #[cfg(target_os = "macos")]
+                {
+                    let mut symbol_stripped = symbol.clone();
+                    symbol_stripped.remove(0);
+                    symbol_arg.push(' ');
+                    symbol_arg.push('_');
+                    symbol_arg.push_str(prefix);
+                    symbol_arg.push_str(&symbol_stripped);
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    symbol_arg.push(' ');
+                    symbol_arg.push_str(prefix);
+                    symbol_arg.push_str(symbol);
+                }
                 symbol_arg.push('\n');
                 if symbol_file.write_all(symbol_arg.as_bytes()).is_err() {
                     return Err(format!(

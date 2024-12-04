@@ -34,10 +34,10 @@ add_custom_target(read_symbols ALL
     COMMAND ${CMAKE_NM} --defined-only --print-file-name ${LIB_PATH} 1> ${LIB_PATH}.nm 2> ${LIB_PATH}.stderr
 
     # Check if stderr is empty (i.e., no errors were produced)
-    COMMAND ${CMAKE_COMMAND} -E echo "Checking for nm errors..."
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/check_errors.sh ${LIB_PATH}.stderr
+    #COMMAND ${CMAKE_COMMAND} -E echo "Checking for nm errors..."
+    #COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/check_errors.sh ${LIB_PATH}.stderr
    
     # Clean up stderr.txt after checking for errors
-    COMMAND ${CMAKE_COMMAND} -E remove ${LIB_PATH}.stderr
-    COMMENT "Reading library symbols with nm..."
+    #COMMAND ${CMAKE_COMMAND} -E remove ${LIB_PATH}.stderr
+    #COMMENT "Reading library symbols with nm..."
 )
