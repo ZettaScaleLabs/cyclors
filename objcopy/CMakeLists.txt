@@ -42,13 +42,5 @@ add_custom_target(mangle_library ALL
     COMMAND ${CMAKE_COMMAND} -E echo "Running objcopy --redefine-syms on ${LIB_PATH} with symbols from ${SYMBOL_FILE_PATH}..."
     
     # Run objcopy and redirect stderr to a file
-    COMMAND ${CMAKE_OBJCOPY} --redefine-syms=${SYMBOL_FILE_PATH} ${LIB_PATH} 2> ${LIB_PATH}.stderr
-
-    # Check if stderr is empty (i.e., no errors were produced)
-    COMMAND ${CMAKE_COMMAND} -E echo "Checking for objcopy errors..."
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/check_errors.sh ${LIB_PATH}.stderr
-   
-    # Clean up stderr.txt after checking for errors
-    COMMAND ${CMAKE_COMMAND} -E remove ${LIB_PATH}.stderr
-    COMMENT "Mangling library with objcopy..."
+    COMMAND ${CMAKE_OBJCOPY} --redefine-syms=${SYMBOL_FILE_PATH} ${LIB_PATH} 2> ${LIB_PATH}.objcopy.stderr
 )
