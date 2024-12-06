@@ -25,7 +25,7 @@ jobs:
         if: startsWith(matrix.os,'ubuntu')
         run: sudo apt-get -y install acl-dev
       - name: Install libstdc++
-        if: startsWith(matrix.os,'ubuntu')
+        if: startsWith(matrix.os,'[ubuntu')
         run: sudo apt-get -y install g++-multilib
       - name: Install LLVM toolchain
         if: startsWith(matrix.os,'macos')
