@@ -50,7 +50,6 @@ jobs:
         if: ${{ ! startsWith(matrix.os,'window') }}
         run: cargo build --features iceoryx --verbose
       - name: Build (with symbol prefixing)
-        if: ${{ ! startsWith(matrix.os,'window') }}
         run: cargo build --features prefix_symbols --verbose
       - name: Run tests (default features)
         run: cargo test --verbose
