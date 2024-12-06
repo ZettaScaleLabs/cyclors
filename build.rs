@@ -15,9 +15,6 @@ fn main() {
     let mut dir_builder = std::fs::DirBuilder::new();
     dir_builder.recursive(true);
 
-    #[cfg(target_os = "linux")]
-    println!("cargo:rustc-link-lib=stdc++");
-
     // Check features
     let iceoryx_enabled = is_iceoryx_enabled();
     let prefix_symbols_enabled = is_prefix_symbols_enabled();
