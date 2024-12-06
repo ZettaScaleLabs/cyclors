@@ -14,19 +14,15 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-       os-arch:
-          - { os: "ubuntu-latest", arch: "x64" }
-          - { os: "windows-11", arch: "x64" }
-          - { os: "macos-ventura", arch: "ARM64" }
-          - { os: "ubuntu-22.04", arch: "ARM64" }
-    runs-on: [self-hosted, "[${{ matrix.os-arch.os }}, ${{ matrix.os-arch.arch }}]"]
+       os: ["ubuntu-latest", "windows-11", "macos-ventura", ["ubuntu-22.04", "ARM64"]]
+    runs-on: [self-hosted, "${{ matrix.os }}"]
 
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Install apt dependencies
-        if: startsWith(matrix.os,'ubuntu')
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == '["ubuntu-22.04","ARM64"]' }}
         run: sudo apt-get -y install acl-dev g++-multilib
       - name: Install LLVM toolchain
         if: startsWith(matrix.os,'macos')
