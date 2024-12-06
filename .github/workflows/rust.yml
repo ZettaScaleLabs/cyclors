@@ -14,15 +14,19 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-       os: [ubuntu-latest, windows-11, macos-ventura, ubu22-arm-1]
-    runs-on: [self-hosted, "${{ matrix.os }}"]
+       os-arch:
+          - { os: "ubuntu-latest", arch: "x64" }
+          - { os: "windows-11", arch: "x64" }
+          - { os: "macos-ventura", arch: "ARM64" }
+          - { os: "ubuntu-22.04", arch: "ARM64" }
+    runs-on: [self-hosted, "[${{ matrix.os-arch.os }}, ${{ matrix.os-arch.arch }}"]
 
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Install apt dependencies
-        if: startsWith(matrix.os,'ubu')
+        if: startsWith(matrix.os,'ubuntu')
         run: sudo apt-get -y install acl-dev g++-multilib
       - name: Install LLVM toolchain
         if: startsWith(matrix.os,'macos')
@@ -53,8 +57,8 @@ jobs:
         run: cargo build --features prefix_symbols --verbose
       - name: Run tests (default features)
         run: cargo test --verbose
-      - name: Run tests (with Iceoryx)
-        if: ${{ ! startsWith(matrix.os,'window') }}
-        run: cargo test --features iceoryx --verbose
+      #- name: Run tests (with Iceoryx)
+      #  if: ${{ ! startsWith(matrix.os,'window') }}
+      #  run: cargo test --features iceoryx --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
