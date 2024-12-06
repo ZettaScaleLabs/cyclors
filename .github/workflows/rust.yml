@@ -44,10 +44,15 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
-      - name: Build (without Iceoryx)
+      - name: Build (default features)
         run: cargo build --verbose
       - name: Build (with Iceoryx)
         if: ${{ ! startsWith(matrix.os,'window') }}
         run: cargo build --features iceoryx --verbose
-      - name: Run tests (without Iceoryx)
+      - name: Build (with symbol prefixing)
+        if: ${{ ! startsWith(matrix.os,'window') }}
+        run: cargo build --features prefix_symbols --verbose
+      - name: Run tests (default features)
         run: cargo test --verbose
+      - name: Run tests (with symbol prefixing)
+        run: cargo test --features prefix_symbols --verbose

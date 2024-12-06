@@ -31,7 +31,4 @@ regex = "1.11"
 
 [features]
 iceoryx = []
-default = [
-  "prefix_symbols",
-]
 prefix_symbols = []
