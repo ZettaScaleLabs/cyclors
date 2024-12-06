@@ -18,7 +18,7 @@ jobs:
           - { os: "ubuntu-latest", arch: "X64" }
           - { os: "windows-11", arch: "X64" }
           - { os: "macos-ventura", arch: "ARM64" }
-          #- { os: "ubuntu-22.04", arch: "ARM64" }
+          - { os: "ubuntu-22.04", arch: "ARM64" }
     runs-on: ["${{ matrix.os-arch.os }}", "${{ matrix.os-arch.arch }}"]
 
     steps:
@@ -50,15 +50,15 @@ jobs:
           args: -- -D warnings
       - name: Build (default features)
         run: cargo build --verbose
-      - name: Run tests (default features)
-        run: cargo test --verbose
       - name: Build (with Iceoryx)
         if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
         run: cargo build --features iceoryx --verbose
+      - name: Build (with symbol prefixing)
+        run: cargo build --features prefix_symbols --verbose
+      - name: Run tests (default features)
+        run: cargo test --verbose
       - name: Run tests (with Iceoryx)
         if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
         run: cargo test --features iceoryx --verbose
-      - name: Build (with symbol prefixing)
-        run: cargo build --features prefix_symbols --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
