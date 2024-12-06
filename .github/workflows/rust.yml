@@ -27,7 +27,7 @@ jobs:
           submodules: recursive
       - name: Install apt dependencies
         if: startsWith(matrix.os-arch.os,'ubuntu')
-        run: sudo apt-get -y install acl-dev g++
+        run: sudo apt-get -y install acl-dev libc++-dev
       - name: Install LLVM toolchain
         if: startsWith(matrix.os-arch.os,'macos')
         run: |
@@ -59,6 +59,6 @@ jobs:
         run: cargo test --verbose
       - name: Run tests (with Iceoryx)
         if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
-        run: cargo test --features iceoryx --verbose --verbose
+        run: cargo test --features iceoryx --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
