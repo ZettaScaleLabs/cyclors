@@ -189,10 +189,10 @@ fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
     println!("cargo:rustc-link-lib=static=iceoryx_platform");
 
     #[cfg(target_os = "linux")]
-    println!("cargo:rustc-link-lib=acl");
-
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
-    println!("cargo:rustc-link-lib=stdc++");
+    {
+        println!("cargo:rustc-link-lib=acl");
+        println!("cargo:rustc-link-lib=stdc++");
+    }
 
     #[cfg(target_os = "macos")]
     println!("cargo:rustc-link-lib=c++");
