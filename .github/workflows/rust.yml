@@ -25,7 +25,8 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == '["ubuntu-22.04", "ARM64"]' }}
         run: sudo apt-get -y install acl-dev g++-multilib
       - name: Print OS
-        run: echo "Matrix OS is: ${{ matrix.os }}"
+        run: |
+          echo "Matrix OS is: ${{ matrix.os }}"
       - name: Install LLVM toolchain
         if: startsWith(matrix.os,'macos')
         run: |
