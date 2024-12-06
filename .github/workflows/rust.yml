@@ -27,7 +27,7 @@ jobs:
           submodules: recursive
       - name: Install apt dependencies
         if: startsWith(matrix.os-arch.os,'ubuntu')
-        run: sudo apt-get -y install acl-dev g++-multilib
+        run: sudo apt-get -y install acl-dev libstdc++6
       - name: Install LLVM toolchain
         if: startsWith(matrix.os-arch.os,'macos')
         run: |
