@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install apt dependencies
-        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == '["ubuntu-22.04","ARM64"]' }}
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == '["ubuntu-22.04", "ARM64"]' }}
         run: sudo apt-get -y install acl-dev g++-multilib
       - name: Install LLVM toolchain
         if: startsWith(matrix.os,'macos')
