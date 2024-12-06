@@ -19,7 +19,7 @@ jobs:
           - { os: "windows-11", arch: "x64" }
           - { os: "macos-ventura", arch: "ARM64" }
           - { os: "ubuntu-22.04", arch: "ARM64" }
-    runs-on: [self-hosted, "[${{ matrix.os-arch.os }}, ${{ matrix.os-arch.arch }}"]
+    runs-on: [self-hosted, "[${{ matrix.os-arch.os }}, ${{ matrix.os-arch.arch }}]"]
 
     steps:
       - uses: actions/checkout@v2
