@@ -14,18 +14,23 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-       os: ["ubuntu-latest", "windows-11", "macos-ventura", ["ubuntu-22.04", "ARM64"]]
-    runs-on: [self-hosted, "${{ matrix.os }}"]
+        os-arch:
+          - { os: "ubuntu-latest", arch: "X64" }
+          - { os: "windows-11", arch: "X64" }
+          - { os: "macos-ventura", arch: "ARM64" }
+          - { os: "ubuntu-22.04", arch: "ARM64" }
+    runs-on: [${{ matrix.os-arch.os }}, ${{ matrix.os-arch.arch }}]
+
 
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Install apt dependencies
-        if: startsWith(matrix.os,'ubuntu')
+        if: startsWith(matrix.os-arch.os,'ubuntu')
         run: sudo apt-get -y install acl-dev
       - name: Install LLVM toolchain
-        if: startsWith(matrix.os,'macos')
+        if: startsWith(matrix.os-arch.os,'macos')
         run: |
           brew install llvm@19
           ls /opt/homebrew/opt/llvm@19/bin
@@ -47,14 +52,14 @@ jobs:
       - name: Build (default features)
         run: cargo build --verbose
       - name: Build (with Iceoryx)
-        if: ${{ ! startsWith(matrix.os,'window') }}
+        if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
         run: cargo build --features iceoryx --verbose
       - name: Build (with symbol prefixing)
         run: cargo build --features prefix_symbols --verbose
       - name: Run tests (default features)
         run: cargo test --verbose
-      #- name: Run tests (with Iceoryx)
-      #  if: ${{ ! startsWith(matrix.os,'window') }}
-      #  run: cargo test --features iceoryx --verbose
+      - name: Run tests (with Iceoryx)
+        if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
+        run: cargo test --features iceoryx --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
