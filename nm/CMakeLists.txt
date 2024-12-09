@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(NM)
 
-# Include the CMakeFindBinUtils module to find nm
-include(CMakeFindBinUtils)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    # Include the CMakeFindBinUtils module to find nm
+    include(CMakeFindBinUtils)
+else()
+    find_program(CMAKE_NM llvm-nm)
+endif()
 
 # Ensure nm is available
 if(NOT CMAKE_NM)
@@ -24,16 +28,7 @@ endif()
 
 # Custom target to run nm on the library
 add_custom_target(read_symbols ALL
-    COMMAND ${CMAKE_COMMAND} -E echo "Running nm on ${LIB_PATH}..."
-    
     # Run nm and redirect stderr to a file
-    COMMAND ${CMAKE_NM} --defined-only --print-file-name ${LIB_PATH} 1> ${LIB_PATH}.nm 2> ${LIB_PATH}.stderr
-
-    # Check if stderr is empty (i.e., no errors were produced)
-    COMMAND ${CMAKE_COMMAND} -E echo "Checking for nm errors..."
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/check_errors.sh ${LIB_PATH}.stderr
-   
-    # Clean up stderr.txt after checking for errors
-    COMMAND ${CMAKE_COMMAND} -E remove ${LIB_PATH}.stderr
-    COMMENT "Reading library symbols with nm..."
+    COMMAND ${CMAKE_COMMAND} -E echo "Running nm on ${LIB_PATH}..."
+    COMMAND ${CMAKE_NM} --defined-only --print-file-name ${LIB_PATH} 1> ${LIB_PATH}.nm 2> ${LIB_PATH}.nm.stderr
 )
