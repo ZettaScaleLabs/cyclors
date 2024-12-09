@@ -172,6 +172,12 @@ fn is_prefix_symbols_enabled() -> bool {
 
 fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
     let mut iceoryx = cmake::Config::new(src_dir);
+
+    // Force compilation of Iceoryx in release mode on Windows due to
+    // https://github.com/rust-lang/rust/issues/39016
+    #[cfg(all(debug_assertions, target_os = "windows"))]
+    let iceoryx = iceoryx.profile("Release");
+
     let iceoryx_path = iceoryx
         .define("BUILD_SHARED_LIBS", "OFF")
         .out_dir(out_dir)
