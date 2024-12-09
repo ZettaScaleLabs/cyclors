@@ -58,7 +58,7 @@ jobs:
       - name: Run tests (default features)
         run: cargo test --verbose
       - name: Run tests (with Iceoryx)
-        if: ${{ ! startsWith(matrix.os-arch.os,'window') }} && ${{ ! startsWith(matrix.os-arch.os,'ubuntu-22.04') }}
+        if: ! ( ${{ startsWith(matrix.os-arch.os,'window') }} || ${{ startsWith(matrix.os-arch.os,'ubuntu-22.04') }} )
         run: cargo test --features iceoryx --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
