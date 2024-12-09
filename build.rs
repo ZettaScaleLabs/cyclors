@@ -153,11 +153,6 @@ fn main() {
 fn is_iceoryx_enabled() -> bool {
     #[cfg(feature = "iceoryx")]
     {
-        #[cfg(target_os = "windows")]
-        {
-            print!("cargo:warning=Cyclone DDS Iceoryx PSMX plugin is not supported on Windows!");
-            std::process::exit(1);
-        }
         true
     }
     #[cfg(not(feature = "iceoryx"))]
