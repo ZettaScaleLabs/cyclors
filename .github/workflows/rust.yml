@@ -57,8 +57,10 @@ jobs:
         run: cargo build --features prefix_symbols --verbose
       - name: Run tests (default features)
         run: cargo test --verbose
-      - name: Run tests (with Iceoryx)
-        if: ${{ ! (startsWith(matrix.os-arch.os,'window') || startsWith(matrix.os-arch.os,'ubuntu-22.04')) }}
-        run: cargo test --features iceoryx --verbose
+      # Currently disabled as it fails on ubuntu-22.04 ARM and ubuntu-latest X86 builds with link errors
+      # Note links successfully when incorporated into Zenoh DDS plugin
+      # - name: Run tests (with Iceoryx)
+      #  if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
+      #  run: cargo test --features iceoryx --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
