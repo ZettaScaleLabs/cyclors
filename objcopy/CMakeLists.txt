@@ -39,8 +39,7 @@ endif()
 
 # Custom target to mangle the library
 add_custom_target(mangle_library ALL
-    COMMAND ${CMAKE_COMMAND} -E echo "Running objcopy --redefine-syms on ${LIB_PATH} with symbols from ${SYMBOL_FILE_PATH}..."
-    
     # Run objcopy and redirect stderr to a file
+    COMMAND ${CMAKE_COMMAND} -E echo "Running objcopy --redefine-syms on ${LIB_PATH} with symbols from ${SYMBOL_FILE_PATH}..."
     COMMAND ${CMAKE_OBJCOPY} --redefine-syms=${SYMBOL_FILE_PATH} ${LIB_PATH} 2> ${LIB_PATH}.objcopy.stderr
 )
