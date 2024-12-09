@@ -1,12 +1,8 @@
 extern crate bindgen;
 
-#[allow(unused_imports)]
 use std::collections::HashSet;
-#[allow(unused_imports)]
 use std::io::{BufRead, BufReader, LineWriter, Write};
 use std::path::{Path, PathBuf};
-#[allow(unused_imports)]
-use std::process::Command;
 use std::{env, fs};
 use std::{ffi::OsStr, fs::metadata, fs::File};
 
