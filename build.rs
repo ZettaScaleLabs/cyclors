@@ -81,6 +81,15 @@ fn main() {
     let cyclonedds_include = cyclonedds.join("include");
     let cyclocut_include = cyclocut.join("include");
 
+    // C++ library added here to avoid link line ordering issue on some platforms
+    if iceoryx_enabled {
+        #[cfg(target_os = "linux")]
+        println!("cargo:rustc-link-lib=stdc++");
+
+        #[cfg(target_os = "macos")]
+        println!("cargo:rustc-link-lib=c++");
+    }
+
     let mut bindings = bindgen::Builder::default();
     bindings = bindings
         .header("wrapper.h")
@@ -272,12 +281,6 @@ fn build_cyclocut(src_dir: &Path, out_dir: &Path, cyclonedds_dir: &Path) -> Path
     let cyclocut_lib = cyclocut_path.join("lib");
     println!("cargo:rustc-link-search=native={}", cyclocut_lib.display());
     println!("cargo:rustc-link-lib=static=cdds-util");
-
-    #[cfg(target_os = "linux")]
-    println!("cargo:rustc-link-lib=stdc++");
-
-    #[cfg(target_os = "macos")]
-    println!("cargo:rustc-link-lib=c++");
 
     cyclocut_path
 }
