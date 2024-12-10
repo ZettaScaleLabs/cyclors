@@ -191,13 +191,7 @@ fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
     println!("cargo:rustc-link-lib=static=iceoryx_platform");
 
     #[cfg(target_os = "linux")]
-    {
-        println!("cargo:rustc-link-lib=acl");
-        println!("cargo:rustc-link-lib=stdc++");
-    }
-
-    #[cfg(target_os = "macos")]
-    println!("cargo:rustc-link-lib=c++");
+    println!("cargo:rustc-link-lib=acl");
 
     iceoryx_path
 }
@@ -278,6 +272,12 @@ fn build_cyclocut(src_dir: &Path, out_dir: &Path, cyclonedds_dir: &Path) -> Path
     let cyclocut_lib = cyclocut_path.join("lib");
     println!("cargo:rustc-link-search=native={}", cyclocut_lib.display());
     println!("cargo:rustc-link-lib=static=cdds-util");
+
+    #[cfg(target_os = "linux")]
+    println!("cargo:rustc-link-lib=stdc++");
+
+    #[cfg(target_os = "macos")]
+    println!("cargo:rustc-link-lib=c++");
 
     cyclocut_path
 }
