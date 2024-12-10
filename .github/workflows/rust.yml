@@ -15,7 +15,8 @@ jobs:
       fail-fast: true
       matrix:
         os-arch:
-          - { os: "ubuntu-22.04", arch: "X64" }
+          - { os: "ubu24-1", arch: "X64" }
+          - { os: "ubu24-3", arch: "X64" }
           - { os: "windows-11", arch: "X64" }
           - { os: "macos-ventura", arch: "ARM64" }
           - { os: "ubuntu-22.04", arch: "ARM64" }
