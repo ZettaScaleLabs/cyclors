@@ -81,13 +81,17 @@ fn main() {
     let cyclonedds_include = cyclonedds.join("include");
     let cyclocut_include = cyclocut.join("include");
 
-    // C++ library added here to avoid link line ordering issue on some platforms
+    // Libraries required by Iceoryx added here to avoid link line ordering issue on some platforms
     if iceoryx_enabled {
         #[cfg(target_os = "linux")]
         println!("cargo:rustc-link-lib=stdc++");
 
         #[cfg(target_os = "macos")]
         println!("cargo:rustc-link-lib=c++");
+
+        println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
+        println!("cargo:rustc-link-lib=static=iceoryx_posh");
+        println!("cargo:rustc-link-lib=static=iceoryx_platform");
     }
 
     let mut bindings = bindgen::Builder::default();
@@ -195,9 +199,6 @@ fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
     // Add iceoryx lib to link
     let iceoryx_lib = iceoryx_path.join("lib");
     println!("cargo:rustc-link-search=native={}", iceoryx_lib.display());
-    println!("cargo:rustc-link-lib=static=iceoryx_hoofs");
-    println!("cargo:rustc-link-lib=static=iceoryx_posh");
-    println!("cargo:rustc-link-lib=static=iceoryx_platform");
 
     #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-lib=acl");
