@@ -1,6 +1,6 @@
 [package]
 name = "cyclors"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["kydos <angelo@icorsaro.net>"]
 license = "Apache-2.0"
 readme = "README.md"
@@ -30,3 +30,4 @@ cmake = "0.1"
 
 [features]
 iceoryx = []
+prefix_symbols = []

@@ -151,7 +151,7 @@ unsafe extern "C" fn on_data(dr: dds_entity_t, arg: *mut std::os::raw::c_void) {
         samples.as_mut_ptr() as *mut *mut libc::c_void,
         MAX_SAMPLES as i32,
     );
-    Box::into_raw(btx);
+    let _ = Box::into_raw(btx);
 }
 fn main() {
     unsafe {
