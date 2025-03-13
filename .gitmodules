@@ -3,4 +3,4 @@
 	url = https://github.com/eclipse-cyclonedds/cyclonedds.git
 [submodule "iceoryx"]
 	path = iceoryx
-	url = https://github.com/eclipse-iceoryx/iceoryx.git
+	url = https://github.com/ZettaScaleLabs/iceoryx.git
