@@ -190,12 +190,10 @@ pub struct DurabilityService {
     pub max_samples_per_instance: i32,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Derivative)]
-#[derivative(Default)]
+// No default values as ReliabilityKind varies between readers and writers
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Reliability {
-    #[derivative(Default(value = "ReliabilityKind::BEST_EFFORT"))]
     pub kind: ReliabilityKind,
-    #[derivative(Default(value = "DDS_100MS_DURATION"))]
     pub max_blocking_time: dds_duration_t,
 }
 
@@ -860,7 +858,7 @@ unsafe fn reliability_from_qos_native(qos: *const dds_qos_t) -> Option<Reliabili
     let mut rel_kind: dds_reliability_kind_t = dds_reliability_kind_DDS_RELIABILITY_BEST_EFFORT;
     let mut max_blocking_time: dds_duration_t = DDS_100MS_DURATION;
     if dds_qget_reliability(qos, &mut rel_kind, &mut max_blocking_time) {
-        to_option(Reliability {
+        Some(Reliability {
             kind: ReliabilityKind::from(&rel_kind),
             max_blocking_time,
         })
@@ -2111,7 +2109,7 @@ fn test_reliability_from_native() {
 
         for kind in kinds {
             let qos_native = dds_create_qos();
-            let max_blocking_time: i64 = 1000;
+            let max_blocking_time: i64 = DDS_100MS_DURATION;
             dds_qset_reliability(qos_native, kind.0, max_blocking_time);
 
             let policy = reliability_from_qos_native(qos_native);
