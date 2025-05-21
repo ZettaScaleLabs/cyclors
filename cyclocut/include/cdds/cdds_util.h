@@ -16,7 +16,7 @@
 
 #include "dds/dds.h"
 
-#define CY_DEBUG_ON 1
+//#define CY_DEBUG_ON 1
 #ifdef CY_DEBUG_ON
 #define CY_DEBUG(msg) printf(msg)
 #define CY_DEBUG_WA(fmt, ...) printf(fmt, __VA_ARGS__)

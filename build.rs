@@ -190,7 +190,6 @@ fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
     let iceoryx_path = iceoryx
         .define("BUILD_SHARED_LIBS", "OFF")
         .out_dir(out_dir)
-        .profile("DEBUG")
         .build();
 
     // Add iceoryx lib to link
@@ -219,8 +218,7 @@ fn build_cyclonedds(src_dir: &Path, out_dir: &Path, iceoryx_path: &OsStr) -> Pat
         .define("ENABLE_LTO", "NO")
         .define("ENABLE_SSL", "NO")
         .define("ENABLE_SECURITY", "NO")
-        .define("CMAKE_INSTALL_LIBDIR", "lib")
-        .profile("DEBUG");
+        .define("CMAKE_INSTALL_LIBDIR", "lib");
 
     if !iceoryx_path.is_empty() {
         cyclonedds = cyclonedds
@@ -276,9 +274,7 @@ fn build_cyclocut(src_dir: &Path, out_dir: &Path, cyclonedds_dir: &Path) -> Path
         .define("CYCLONE_LIB", cyclonedds_lib.clone())
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("CMAKE_INSTALL_LIBDIR", "lib")
-        .define("CY_DEBUG_ON", "1")
         .out_dir(out_dir)
-        .profile("DEBUG")
         .build();
 
     // Add cyclocut lib to link
