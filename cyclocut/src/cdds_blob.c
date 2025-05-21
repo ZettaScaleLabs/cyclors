@@ -201,14 +201,23 @@ static struct ddsi_serdata *cdds_serdata_from_ser(
     }
     fragchain = fragchain->nextfrag;
   }
-  CY_DEBUG("Done Defragmenting!n");
+  CY_DEBUG("Done Defragmenting!\n");
   return &csd->sd;
 }
 
-static struct ddsi_serdata *cdds_serdata_to_typeless(const struct ddsi_serdata *psd)
+static struct ddsi_serdata *cdds_serdata_from_keyhash (
+  const struct ddsi_sertype *tpcmn,
+  const ddsi_keyhash_t *keyhash)
+{
+  CY_DEBUG("Called <cdds_serdata_from_keyhash>\n");
+  // Don't have the type information needed to process the keyhash
+  return NULL;
+}
+
+static struct ddsi_serdata *cdds_serdata_to_untyped(const struct ddsi_serdata *psd)
 {
 
-  CY_DEBUG("Called <cdds_serdata_to_typeless> \n");
+  CY_DEBUG("Called <cdds_serdata_to_untyped>\n");
   struct cdds_ddsi_payload *sd = (struct cdds_ddsi_payload *)psd;
   struct cdds_ddsi_payload *sd_tl = (struct cdds_ddsi_payload *)malloc(sizeof(struct cdds_ddsi_payload));
 
@@ -306,16 +315,18 @@ static struct ddsi_serdata *cdds_from_psmx (const struct ddsi_sertype *type, dds
 }
 
 static const struct ddsi_serdata_ops cdds_serdata_ops = {
-    .get_size = cdds_serdata_size,
     .eqkey = cdds_serdata_eqkey,
+    .get_size = cdds_serdata_size,
     .from_ser = cdds_serdata_from_ser,
     .from_ser_iov = cdds_serdata_from_ser_iov,
-    .to_untyped = cdds_serdata_to_typeless,
+    .from_keyhash = cdds_serdata_from_keyhash,
     .to_ser = cdds_to_ser,
     .to_ser_ref = cdds_to_ser_ref,
     .to_ser_unref = cdds_to_ser_unref,
+    .to_untyped = cdds_serdata_to_untyped,
     .free = cdds_serdata_free,
-    .from_psmx = cdds_from_psmx};
+    .from_psmx = cdds_from_psmx
+};
 
 dds_entity_t cdds_create_blob_topic(dds_entity_t dp, char *topic_name, char *type_name, bool is_keyless)
 {
