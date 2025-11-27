@@ -168,7 +168,7 @@ impl From<&dds_durability_kind_t> for DurabilityKind {
             &dds_durability_kind_DDS_DURABILITY_TRANSIENT_LOCAL => DurabilityKind::TRANSIENT_LOCAL,
             &dds_durability_kind_DDS_DURABILITY_TRANSIENT => DurabilityKind::TRANSIENT,
             &dds_durability_kind_DDS_DURABILITY_PERSISTENT => DurabilityKind::PERSISTENT,
-            x => panic!("Invalid numeric value for DurabilityKind: {}", x),
+            x => panic!("Invalid numeric value for DurabilityKind: {x}"),
         }
     }
 }
@@ -210,7 +210,7 @@ impl From<&dds_reliability_kind_t> for ReliabilityKind {
         match from {
             &dds_reliability_kind_DDS_RELIABILITY_BEST_EFFORT => ReliabilityKind::BEST_EFFORT,
             &dds_reliability_kind_DDS_RELIABILITY_RELIABLE => ReliabilityKind::RELIABLE,
-            x => panic!("Invalid numeric value for ReliabilityKind: {}", x),
+            x => panic!("Invalid numeric value for ReliabilityKind: {x}"),
         }
     }
 }
@@ -254,7 +254,7 @@ impl From<&dds_destination_order_kind_t> for DestinationOrderKind {
             &dds_destination_order_kind_DDS_DESTINATIONORDER_BY_SOURCE_TIMESTAMP => {
                 DestinationOrderKind::BY_SOURCE_TIMESTAMP
             }
-            x => panic!("Invalid numeric value for DestinationOrderKind: {}", x),
+            x => panic!("Invalid numeric value for DestinationOrderKind: {x}"),
         }
     }
 }
@@ -285,7 +285,7 @@ impl From<&dds_liveliness_kind_t> for LivelinessKind {
                 LivelinessKind::MANUAL_BY_PARTICIPANT
             }
             &dds_liveliness_kind_DDS_LIVELINESS_MANUAL_BY_TOPIC => LivelinessKind::MANUAL_BY_TOPIC,
-            x => panic!("Invalid numeric value for LivelinessKind: {}", x),
+            x => panic!("Invalid numeric value for LivelinessKind: {x}"),
         }
     }
 }
@@ -309,7 +309,7 @@ impl From<&dds_ownership_kind_t> for OwnershipKind {
         match from {
             &dds_ownership_kind_DDS_OWNERSHIP_SHARED => OwnershipKind::SHARED,
             &dds_ownership_kind_DDS_OWNERSHIP_EXCLUSIVE => OwnershipKind::EXCLUSIVE,
-            x => panic!("Invalid numeric value for OwnershipKind: {}", x),
+            x => panic!("Invalid numeric value for OwnershipKind: {x}"),
         }
     }
 }
@@ -336,7 +336,7 @@ impl From<&dds_history_kind_t> for HistoryKind {
         match from {
             &dds_history_kind_DDS_HISTORY_KEEP_LAST => HistoryKind::KEEP_LAST,
             &dds_history_kind_DDS_HISTORY_KEEP_ALL => HistoryKind::KEEP_ALL,
-            x => panic!("Invalid numeric value for HistoryKind: {}", x),
+            x => panic!("Invalid numeric value for HistoryKind: {x}"),
         }
     }
 }
@@ -384,10 +384,7 @@ impl From<&dds_presentation_access_scope_kind_t> for PresentationAccessScopeKind
             &dds_presentation_access_scope_kind_DDS_PRESENTATION_GROUP => {
                 PresentationAccessScopeKind::GROUP
             }
-            x => panic!(
-                "Invalid numeric value for PresentationAccessScopeKind: {}",
-                x
-            ),
+            x => panic!("Invalid numeric value for PresentationAccessScopeKind: {x}"),
         }
     }
 }
@@ -464,7 +461,7 @@ impl From<&dds_ignorelocal_kind_t> for IgnoreLocalKind {
             &dds_ignorelocal_kind_DDS_IGNORELOCAL_NONE => IgnoreLocalKind::NONE,
             &dds_ignorelocal_kind_DDS_IGNORELOCAL_PARTICIPANT => IgnoreLocalKind::PARTICIPANT,
             &dds_ignorelocal_kind_DDS_IGNORELOCAL_PROCESS => IgnoreLocalKind::PROCESS,
-            x => panic!("Invalid numeric value for IgnoreLocalKind: {}", x),
+            x => panic!("Invalid numeric value for IgnoreLocalKind: {x}"),
         }
     }
 }
@@ -505,7 +502,7 @@ impl From<&dds_type_consistency_kind_t> for TypeConsistencyKind {
             &dds_type_consistency_kind_DDS_TYPE_CONSISTENCY_ALLOW_TYPE_COERCION => {
                 TypeConsistencyKind::ALLOW_TYPE_COERCION
             }
-            x => panic!("Invalid numeric value for TypeConsistencyKind: {}", x),
+            x => panic!("Invalid numeric value for TypeConsistencyKind: {x}"),
         }
     }
 }
@@ -1089,7 +1086,7 @@ unsafe fn properties_from_qos_native(qos: *const dds_qos_t) -> Option<HashMap<St
             if let Some(value) = property_from_qos_native(qos, &name) {
                 map.insert(name, value);
             } else {
-                warn!("Error retrieving QoS property: name={}", name);
+                warn!("Error retrieving QoS property: name={name}");
                 continue;
             }
         }

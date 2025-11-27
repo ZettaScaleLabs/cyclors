@@ -179,6 +179,22 @@ fn is_prefix_symbols_enabled() -> bool {
     }
 }
 
+fn is_dds_security_enabled() -> bool {
+    #[cfg(feature = "dds_security")]
+    {
+        #[cfg(target_os = "windows")]
+        {
+            print!("cargo:warning=Cyclone DDS Security is not supported on Windows!");
+            std::process::exit(1);
+        }
+        true
+    }
+    #[cfg(not(feature = "dds_security"))]
+    {
+        false
+    }
+}
+
 fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
     let mut iceoryx = cmake::Config::new(src_dir);
 
@@ -216,9 +232,17 @@ fn build_cyclonedds(src_dir: &Path, out_dir: &Path, iceoryx_path: &OsStr) -> Pat
         .define("BUILD_IDLC", "OFF")
         .define("BUILD_DDSPERF", "OFF")
         .define("ENABLE_LTO", "NO")
-        .define("ENABLE_SSL", "NO")
-        .define("ENABLE_SECURITY", "NO")
         .define("CMAKE_INSTALL_LIBDIR", "lib");
+
+    if is_dds_security_enabled() {
+        cyclonedds = cyclonedds
+            .define("ENABLE_SSL", "YES")
+            .define("ENABLE_SECURITY", "YES");
+    } else {
+        cyclonedds = cyclonedds
+            .define("ENABLE_SSL", "NO")
+            .define("ENABLE_SECURITY", "NO");
+    }
 
     if !iceoryx_path.is_empty() {
         cyclonedds = cyclonedds
@@ -244,6 +268,12 @@ fn build_cyclonedds(src_dir: &Path, out_dir: &Path, iceoryx_path: &OsStr) -> Pat
         cyclonedds_lib.display()
     );
     println!("cargo:rustc-link-lib=static=ddsc");
+
+    // Add libraries required by DDS Security
+    if is_dds_security_enabled() {
+        println!("cargo:rustc-link-lib=ssl");
+        println!("cargo:rustc-link-lib=crypto");
+    }
 
     // Add Windows libraries required by Cyclone to link
     #[cfg(target_os = "windows")]
@@ -410,7 +440,7 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
                         #[cfg(not(target_os = "windows"))]
                         result.insert(String::from(symbol));
                     }
-                    Err(_) => return Err(format!("Failed to run nm on library {}", lib_name)),
+                    Err(_) => return Err(format!("Failed to run nm on library {lib_name}")),
                 }
             }
             Ok(result)
@@ -420,7 +450,7 @@ fn get_defined_symbols(lib_dir: &Path, lib_name: &str) -> Result<HashSet<String>
                 "nm file open problem: {}",
                 symbol_file_path.to_str().unwrap()
             );
-            Err(format!("Failed to run nm on library {}", lib_name))
+            Err(format!("Failed to run nm on library {lib_name}"))
         }
     }
 }
@@ -497,16 +527,14 @@ fn prefix_symbols(
                 symbol_arg.push('\n');
                 if symbol_file.write_all(symbol_arg.as_bytes()).is_err() {
                     return Err(format!(
-                        "Failed to write symbol file for library {}",
-                        lib_name
+                        "Failed to write symbol file for library {lib_name}"
                     ));
                 }
             }
 
             if symbol_file.flush().is_err() {
                 return Err(format!(
-                    "Failed to write symbol file for library {}",
-                    lib_name
+                    "Failed to write symbol file for library {lib_name}"
                 ));
             }
 
@@ -525,8 +553,7 @@ fn prefix_symbols(
             Ok(())
         }
         Err(_) => Err(format!(
-            "Failed to create symbol file for library {}",
-            lib_name
+            "Failed to create symbol file for library {lib_name}"
         )),
     }
 }
@@ -570,8 +597,7 @@ fn generate_template_src(prefix: &str, out_dir: &Path) -> Result<(), String> {
                     if file.write_all(contents.as_bytes()).is_err() {
                         let path = dst_path.to_str().unwrap();
                         return Err(format!(
-                            "Failed to write the modified content to the destination file {}",
-                            path
+                            "Failed to write the modified content to the destination file {path}"
                         ));
                     }
 
@@ -582,8 +608,7 @@ fn generate_template_src(prefix: &str, out_dir: &Path) -> Result<(), String> {
                 Err(_) => {
                     let path = dst_path.to_str().unwrap();
                     Err(format!(
-                        "Failed to open the destination file ({}) for writing",
-                        path
+                        "Failed to open the destination file ({path}) for writing"
                     ))
                 }
             }
