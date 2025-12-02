@@ -12,32 +12,35 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os-arch:
           - { os: "ubuntu-latest", arch: "X64" }
-          - { os: "windows-11", arch: "X64" }
+          - { os: "windows-latest", arch: "X64" }
           - { os: "macos-ventura", arch: "ARM64" }
           - { os: "ubuntu-22.04", arch: "ARM64" }
     runs-on: ["${{ matrix.os-arch.os }}", "${{ matrix.os-arch.arch }}"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install ACL
+      - name: Install ACL and SSL
         if: startsWith(matrix.os-arch.os,'ubuntu')
-        run: sudo apt-get -y install acl-dev
+        run: sudo apt-get -y install acl-dev libssl-dev
       - name: Install LLVM toolchain
         if: startsWith(matrix.os-arch.os,'macos')
         run: |
           brew install llvm@19
           ls /opt/homebrew/opt/llvm@19/bin
           echo "/opt/homebrew/opt/llvm@19/bin" >> $GITHUB_PATH
-      - name: Install Rust toolchain
-        run: |
-          rustup show
-          rustup component add rustfmt clippy
+      - name: Install Rust toolchain (1.85.0)
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.85.0
+          profile: minimal
+          components: rustfmt, clippy
+          override: true
       - name: Code format check
         uses: actions-rs/cargo@v1
         with:
@@ -55,6 +58,9 @@ jobs:
         run: cargo build --features iceoryx --verbose
       - name: Build (with symbol prefixing)
         run: cargo build --features prefix_symbols --verbose
+      - name: Build (with dds security)
+        if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
+        run: cargo build --features dds_security --verbose
       - name: Run tests (default features)
         run: cargo test --verbose
       - name: Run tests (with Iceoryx)
@@ -62,3 +68,6 @@ jobs:
         run: cargo test --features iceoryx --verbose
       - name: Run tests (with symbol prefixing)
         run: cargo test --features prefix_symbols --verbose
+      - name: Run tests (with dds security)
+        if: ${{ ! startsWith(matrix.os-arch.os,'window') }}
+        run: cargo test --features dds_security --verbose
