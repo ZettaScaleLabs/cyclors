@@ -4,7 +4,9 @@ on:
   push:
     branches: [master]
   pull_request:
+    types: [ready_for_review]
     branches: [master]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
