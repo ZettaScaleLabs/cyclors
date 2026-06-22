@@ -247,6 +247,7 @@ fn build_cyclonedds(src_dir: &Path, out_dir: &Path, iceoryx_path: &OsStr) -> Pat
     if !iceoryx_path.is_empty() {
         cyclonedds = cyclonedds
             .env("iceoryx_hoofs_DIR", iceoryx_path)
+            .env("iceoryx_platform_DIR", iceoryx_path)
             .env("iceoryx_posh_DIR", iceoryx_path)
             .define("ENABLE_ICEORYX", "YES");
     } else {
