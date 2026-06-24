@@ -205,6 +205,9 @@ fn build_iceoryx(src_dir: &Path, out_dir: &Path) -> PathBuf {
 
     let iceoryx_path = iceoryx
         .define("BUILD_SHARED_LIBS", "OFF")
+        // Cyclors only links Iceoryx libraries; it does not build/use the bundled
+        // RouDi daemon or TOML configuration, so disabling it avoids obsolete cpptoml.
+        .define("TOML_CONFIG", "OFF")
         .out_dir(out_dir)
         .build();
 
