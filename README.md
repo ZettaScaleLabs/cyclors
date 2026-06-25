@@ -1,4 +1,5 @@
 # cyclors
+
 Low level RUST APIs for cyclone
 
 ## Supported Features
@@ -7,4 +8,7 @@ Low level RUST APIs for cyclone
 * ```prefix_symbols```: Prefix the symbols in the Cyclone DDS and Cyclocut libraries with the version of the cyclors crate. This allows for different versions of the crate to be loaded together statically. On macOS and Windows platforms ```llvm-nm``` and ```llvm-objcopy``` are required.
 * ```dds_security```: Enable support for DDS Security in Cyclone DDS (Linux and macOS only).
 
-**Note:** The ```iceoryx``` and ```prefix_symbols``` features are optional and cannot be enabled at the same time.
+**Note:**
+
+* The ```iceoryx``` and ```prefix_symbols``` features are optional and cannot be enabled at the same time.
+* Version `0.4.0` no longer bundles iox-roudi daemon. See <https://github.com/ZettaScaleLabs/cyclors/pull/50> for details.

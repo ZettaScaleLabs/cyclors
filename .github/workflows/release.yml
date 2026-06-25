@@ -31,4 +31,4 @@ jobs:
       - uses: actions/checkout@v7
       - name: Publish
         run: |
-          cargo publish {{ inputs.dryrun == 'true' && '--dry-run' || '' }} --locked
+          cargo publish ${{ inputs.dryrun == 'true' && '--dry-run' || '' }} --locked
