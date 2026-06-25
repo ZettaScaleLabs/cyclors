@@ -11,7 +11,7 @@
 # Contributors:
 #   ZettaScale Zenoh team, <zenoh@zettascale.tech>
 #
-name: Publish crates.io
+name: Release
 on:
   workflow_dispatch:
     inputs:
@@ -29,6 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
+
       - name: Publish
         run: |
-          cargo publish ${{ inputs.dryrun == 'true' && '--dry-run' || '' }} --locked
+          cargo publish ${{ inputs.dryrun == true && '--dry-run' || '' }}
